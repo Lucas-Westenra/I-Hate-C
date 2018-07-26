@@ -34,6 +34,15 @@ public class Tile{
     return yPos;
   }
   
+  public boolean canMove(Tile current, Tile next) {
+	  
+	  
+	  if(!(current.name.equals(next.name))) { //Doesn't allow movement from one location to another
+		  return false;
+	  }
+	  return true;
+  }
+  
   public String toString(){
     return "[" + "name" + ":" + getName()+ "," +
             "xPos" + ":" + getXPos()+ "," +
