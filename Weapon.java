@@ -3,10 +3,12 @@ public class Weapon
 {
   private String name;
   private Tile position;
+  private char piece;
   
-  public Weapon(String name, Tile position){
+  public Weapon(String name, Tile position, char piece){
     this.name=name;
     this.position=position;
+    this.piece=piece;
   }
 
   public void setName(String name){
@@ -17,12 +19,20 @@ public class Weapon
 	this.position=position;
   }
   
+  public void setPiece(char piece) {
+	  this.piece=piece;
+  }
+  
   public String getName(){
 	    return name;
   }
   
   public Tile getPosition(){
     return position;
+  }
+  
+  public char getPiece() {
+	  return piece;
   }
 
   public String toString()
