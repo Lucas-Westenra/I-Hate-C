@@ -6,14 +6,14 @@ public class Player
   //Player Attributes
   private String name;
   private Tile position;
-  private final List<Card> hand;
+  private List<Card> hand;
   private char piece;
   private boolean playing;
+  private boolean isPlayer = false;
 
-  public Player(String name, Tile position, List<Card> hand, char piece, boolean playing){
+  public Player(String name, Tile position, char piece, boolean playing){
     this.name=name;
     this.position=position;
-    this.hand=hand;
     this.piece=piece;
     this.playing=playing;
   }
@@ -32,7 +32,10 @@ public class Player
 
   public void setPlaying(boolean playing){
     this.playing = playing;
-
+  }
+  
+  public void setPlayer(boolean player) {
+	  this.isPlayer = player;
   }
 
   public String getName(){
@@ -48,6 +51,12 @@ public class Player
 	List<Card> newHand = Collections.unmodifiableList(hand);
     return newHand;
   }
+  
+  public void fillHand(List<Card> cards){
+	  for(Card card: cards) {
+		  this.hand.add(card);
+	  }
+  }
 
   public char getPiece()
   {
@@ -57,6 +66,10 @@ public class Player
   public boolean getPlaying()
   {
     return playing;
+  }
+  
+  public boolean isPlaying() {
+	  return isPlayer;
   }
 
 
