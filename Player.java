@@ -9,7 +9,7 @@ public class Player
   private List<Card> hand;
   private char piece;
   private boolean playing;
-  private boolean isPlayer = false;
+  private int isPlayer = -1;
 
   public Player(String name, Tile position, char piece, boolean playing){
     this.name=name;
@@ -34,7 +34,7 @@ public class Player
     this.playing = playing;
   }
   
-  public void setPlayer(boolean player) {
+  public void setPlayer(int player) {
 	  this.isPlayer = player;
   }
 
@@ -52,10 +52,8 @@ public class Player
     return newHand;
   }
   
-  public void fillHand(List<Card> cards){
-	  for(Card card: cards) {
-		  this.hand.add(card);
-	  }
+  public void addToHand(Card card){
+	  this.hand.add(card);
   }
 
   public char getPiece()
@@ -69,7 +67,7 @@ public class Player
   }
   
   public boolean isPlaying() {
-	  return isPlayer;
+	  return isPlayer!=-1;
   }
 
 
