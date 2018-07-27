@@ -13,6 +13,7 @@ public class Board{
   private Tile[][] tiles;;
   private List<Weapon> weapons;
   private List<Player> players;
+  private List<Player> turnOrder = new ArrayList<Player>();
 
   //------------------------
   // CONSTRUCTOR
@@ -166,7 +167,7 @@ public class Board{
 				String v = input.readLine();
 				return Integer.parseInt(v);
 			} catch (NumberFormatException | IOException e) {
-				System.out.println("Please enter a number between 3-6!");
+				System.out.println("Please enter a number!");
 			}
 		}
 	}
@@ -200,25 +201,20 @@ public class Board{
 				  tiles[x][y] = new Tile("Hall",x,y);
 			  else if(x>16 && y>20)
 				  tiles[x][y] = new Tile("Study",x,y);
-			  else if(x<9 && y==0)
+			  else if((x<9 && y==0)	||
+					  (x>9 && x<14 && y==0)	||
+					  (x>14 && y==0)	||
+					  (x==6 && y==1)	||
+					  (x==17 && y==1)	||
+					  ((x==0 || x==23) && (y==6 || y==8))	||
+					  (x>9 && x<15 && y>9 && y<17)	||
+					  (x==23 && y>12 && y<15)	||
+					  (x==0 && (y==16 || y==18))	||
+					  (x==23 && (y==18 || y==20))	||
+					  ((x==6 || x==8 || x==15 || x==17) && y==24))
 				  tiles[x][y] = new Tile("Inaccessible",x,y);
 			  else 
 				  tiles[x][y] = new Tile("Walkway",x,y);
-			  /*
-			   * Tiles to make inaccessible 
-			   * x(0..8),y(0)
-			   * x(10..13),y(0)
-			   * x(15..),y(0)
-			   * x(6),y(1)
-			   * x(17),y(1)
-			   * x(0),y(6,8)
-			   * x(23),y(6,8)
-			   * x(10..14),y(10..16)
-			   * x(23),y(13,14)
-			   * x(0),y(16,18)
-			   * x(23),y(18,20)
-			   * x(6,8,15,17),y(24)
-			   */
 		  }
 	  }
 	  
@@ -266,29 +262,31 @@ public class Board{
 	  
 	  int nplayers = inputNumber("How many players?");
 	  while(nplayers < 3 || nplayers > 6)  nplayers = inputNumber("How many players? Must be 3-6."); 
+	  String text = "Which character would you like?\n"
+		  + "1:\t Miss Scarlett.\n"
+		  + "2:\t Col. Mustard.\n"
+		  + "3:\t Mrs. White.\n"
+		  + "4:\t Mr. Green.\n"
+		  + "5:\t Mrs. Peacock.\n"
+		  + "6:\t Prof. Plum.\n";
 	  for(int i=0; i<nplayers; i++) {
-		  
-		  int selection = -1;
-//		  String charSelectText = "Which character would you like?\n"
-//		  + "Player '"+i+"' is choosing.\n"
-//		  + "1:\t Miss Scarlett.\n"
-//		  + "2:\t Col. Mustard.\n"
-//		  + "3:\t Mrs. White.\n"
-//		  + "4:\t Mr. Green.\n"
-//		  + "5:\t Mrs. Peacock.\n"
-//		  + "6:\t Prof. Plum.\n";
-		  while(selection >= 3 && selection <= 6) {
-			  while(players.get(selection).isPlaying()) {
-				  inputNumber("Which character would you like?\n"
-						  + "Player '"+i+"' is choosing.\n"
-						  + "1:\t Miss Scarlett.\n"
-						  + "2:\t Col. Mustard.\n"
-						  + "3:\t Mrs. White.\n"
-						  + "4:\t Mr. Green.\n"
-						  + "5:\t Mrs. Peacock.\n"
-						  + "6:\t Prof. Plum.\n");
-			  }
+		  System.out.printf("Player '"+(i+1)+"' is choosing.\n");
+		  int selection = inputNumber(text);
+		  while(selection < 1 || selection > 6 || players.get(selection).isPlaying()) {
+			  System.out.printf("You must choose a number between 1-6!\n");
+			  System.out.printf("Player '"+(i+1)+"' is choosing.\n");
+			  selection = inputNumber(text);
 		  }
+		  players.get(selection-1).setPlayer(i);
+		  System.out.println("Player "+(i+1)+" chose "+selection+"!");
+	  } 
+	  
+	  int nextPlayer = (int)Math.random()*(nplayers)-1;
+	  for(int i=cards.size(); i<=0; i--) {
+		  if(nextPlayer >= nplayers-1) nextPlayer = 0;
+		  int randomCard = (int)Math.random()*i-1;
+		  players.get(nextPlayer).addToHand(cards.get(randomCard));
+		  cards.remove(randomCard);
 	  }
 	  
 	  new Board(tiles, players, weapons, murderCards);
