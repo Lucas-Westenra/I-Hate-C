@@ -13,20 +13,23 @@ public class Board{
   private Tile[][] tiles;;
   private List<Weapon> weapons;
   private List<Player> players;
+  private List<Door> doors;
   private List<Player> turnOrder = new ArrayList<Player>();
+	
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
   public Board(Tile[][] tiles, List<Player> players, List<Weapon> weapons,
-		  List<Card> murderCards)
+		  List<Card> murderCards, List<Door> doors)
   {
     this.playersTurn = players.get((int)Math.random()*players.size());
     this.murderCards = murderCards;
     this.tiles = tiles;
     this.weapons = weapons;
     this.players = players;
+    this.doors = doors;	  
   }
 
   //------------------------
@@ -170,7 +173,26 @@ public class Board{
 				System.out.println("Please enter a number!");
 			}
 		}
-	}
+  }
+	
+  public boolean canMove(Tile current, Tile next) {
+	  Door enterRoom = new Door(current, next);
+	  Door exitRoom = new Door(next, current);
+	 
+	  for(Door d: doors){ //Checks if the player is trying to move from one room to another via a door
+		  if(enterRoom.equals(d)) {
+			  return true;
+		  }
+		  if(exitRoom.equals(d)) {
+			  return true;
+		  }
+	  }
+	  
+	  if(!(current.getName().equals(next.getName()))) { //Doesn't allow movement from one location to another
+		  return false;
+	  }
+	  return true; //True if player is moving between two tiles that are in the same room
+  }
   
   public static void main(String[] args) {
 	  Tile[][] tiles = new Tile[24][25];
@@ -178,6 +200,7 @@ public class Board{
 	  List<Weapon> weapons = new ArrayList<Weapon>();
 	  List<Card> cards = new ArrayList<Card>();
 	  List<Card> murderCards = new ArrayList<Card>();
+	  List<Door> doors = new ArrayList<Door>();
 	  
 	  for(int x=0; x<24; x++) {
 		  for(int y=0; y<25; y++) {
@@ -259,6 +282,25 @@ public class Board{
 	  cards.remove(personNum);
 	  cards.remove(roomNum);
 	  
+	  //Doors
+	  doors.add(new Door(new Tile("Walkway", 4, 6), new Tile("Kitchen", 4, 7)));
+	  doors.add(new Door(new Tile("Walkway", 7, 5), new Tile("Ball Room", 8, 5)));
+	  doors.add(new Door(new Tile("Walkway", 9, 8), new Tile("Ball Room", 9, 7)));
+	  doors.add(new Door(new Tile("Walkway", 14, 8), new Tile("Ball Room", 14, 7)));
+	  doors.add(new Door(new Tile("Walkway", 16, 5), new Tile("Ball Room", 15, 5)));
+	  doors.add(new Door(new Tile("Walkway", 18, 5), new Tile("Conservatory", 18, 4)));
+	  doors.add(new Door(new Tile("Walkway", 17, 9), new Tile("Billiard Room", 18, 9)));
+	  doors.add(new Door(new Tile("Walkway", 22, 13), new Tile("Billiard Room", 22, 12)));
+	  doors.add(new Door(new Tile("Walkway", 20, 13), new Tile("Library", 20, 14)));
+	  doors.add(new Door(new Tile("Walkway", 16, 16), new Tile("Library", 17, 16)));
+	  doors.add(new Door(new Tile("Walkway", 17, 20), new Tile("Study", 17, 21)));
+	  doors.add(new Door(new Tile("Walkway", 15, 20), new Tile("Hall", 14, 20)));
+	  doors.add(new Door(new Tile("Walkway", 12, 17), new Tile("Hall", 12, 18)));
+	  doors.add(new Door(new Tile("Walkway", 11, 17), new Tile("Hall", 11, 18)));
+	  doors.add(new Door(new Tile("Walkway", 6, 18), new Tile("Lounge", 6, 19)));
+	  doors.add(new Door(new Tile("Walkway", 6, 16), new Tile("Dining Room", 6, 15)));
+	  doors.add(new Door(new Tile("Walkway", 8, 12), new Tile("Dining Room", 7, 12)));
+	  
 	  
 	  int nplayers = inputNumber("How many players?");
 	  while(nplayers < 3 || nplayers > 6)  nplayers = inputNumber("How many players? Must be 3-6."); 
@@ -289,6 +331,6 @@ public class Board{
 		  cards.remove(randomCard);
 	  }
 	  
-	  new Board(tiles, players, weapons, murderCards);
+	  new Board(tiles, players, weapons, murderCards, doors);
   }
 }
