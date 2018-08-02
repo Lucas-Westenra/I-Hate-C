@@ -21,7 +21,7 @@ public class Board{
   //------------------------
 
   public Board(Tile[][] tiles, List<Player> players, List<Weapon> weapons,
-		  List<Card> murderCards, list<Door> doors)
+		  List<Card> murderCards, List<Door> doors)
   {
     this.playersTurn = players.get((int)Math.random()*players.size());
     this.murderCards = murderCards;
@@ -313,7 +313,7 @@ public class Board{
 		  cards.remove(randomCard);
 	  }
 	  
-	  Board board = new Board(tiles, players, weapons, murderCards);
+	  Board board = new Board(tiles, players, weapons, murderCards, doors);
 	  board.drawTiles();
   }
   
