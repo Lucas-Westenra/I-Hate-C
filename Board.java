@@ -10,26 +10,29 @@ public class Board{
   //private List<Card> cards;
 
   //Board Associations
-  private Tile[][] tiles;;
+  private Tile[][] tiles = new Tile[24][25];
   private List<Weapon> weapons;
   private List<Player> players;
   private List<Door> doors;
   private List<Player> turnOrder = new ArrayList<Player>();
-	
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
   public Board(Tile[][] tiles, List<Player> players, List<Weapon> weapons,
-		  List<Card> murderCards, List<Door> doors)
+		  List<Card> murderCards, list<Door> doors)
   {
     this.playersTurn = players.get((int)Math.random()*players.size());
     this.murderCards = murderCards;
-    this.tiles = tiles;
+    for(int x=0; x<24; x++) {
+		  for(int y=0; y<25; y++) {
+			  this.tiles[x][y] = tiles[x][y];
+		  }
+    }
+    this.doors = doors;
     this.weapons = weapons;
     this.players = players;
-    this.doors = doors;	  
   }
 
   //------------------------
@@ -110,35 +113,10 @@ public class Board{
     int index = players.indexOf(aPlayer);
     return index;
   }
-
-  public boolean isNumberOfTilesValid()
-  {
-    boolean isValid = numberOfTiles() >= minimumNumberOfTiles() && numberOfTiles() <= maximumNumberOfTiles();
-    return isValid;
-  }
-
+  
   public static int requiredNumberOfTiles()
   {
     return 600;
-  }
-
-  public static int minimumNumberOfTiles(){
-    return 600;
-  }
-
-  public static int maximumNumberOfTiles(){
-    return 600;
-  }
-
-  public Tile addTile(String aName, int aXPos, int aYPos){
-    if (numberOfTiles() >= maximumNumberOfTiles())
-    {
-      return null;
-    }
-    else
-    {
-      return new Tile(aName, aXPos, aYPos);
-    }
   }
 
   /* Code from template association_IsNumberOfValidMethod */
@@ -163,7 +141,7 @@ public class Board{
   
   private static int inputNumber(String msg) {
 		System.out.print(msg + " ");
-		while (1 == 1) {
+		while (true) {
 			BufferedReader input = new BufferedReader(new InputStreamReader(
 					System.in));
 			try {
@@ -173,9 +151,9 @@ public class Board{
 				System.out.println("Please enter a number!");
 			}
 		}
-  }
+	}
 	
-  public boolean canMove(Tile current, Tile next) {
+   public boolean canMove(Tile current, Tile next) {
 	  Door enterRoom = new Door(current, next);
 	  Door exitRoom = new Door(next, current);
 	 
@@ -204,7 +182,19 @@ public class Board{
 	  
 	  for(int x=0; x<24; x++) {
 		  for(int y=0; y<25; y++) {
-			  if(x<6 && y<7)
+			  if((x<9 && y==0)	||
+					  (x>9 && x<14 && y==0)	||
+					  (x>14 && y==0)	||
+					  (x==6 && y==1)	||
+					  (x==17 && y==1)	||
+					  ((x==0 || x==23) && (y==6 || y==8))	||
+					  (x>9 && x<15 && y>9 && y<17)	||
+					  (x==23 && y>12 && y<15)	||
+					  (x==0 && (y==16 || y==18))	||
+					  (x==23 && (y==18 || y==20))	||
+					  ((x==6 || x==8 || x==15 || x==17) && y==24))
+				  tiles[x][y] = new Tile("Inaccessible",x,y);
+			  else if(x<6 && y<7)
 				  tiles[x][y] = new Tile("Kitchen",x,y);
 			  else if((x>=8 && x<16 && y>=2 && y<8) || (x>=10 && x<14 && y==1))
 				  tiles[x][y] = new Tile("Ball Room",x,y);
@@ -224,18 +214,6 @@ public class Board{
 				  tiles[x][y] = new Tile("Hall",x,y);
 			  else if(x>16 && y>20)
 				  tiles[x][y] = new Tile("Study",x,y);
-			  else if((x<9 && y==0)	||
-					  (x>9 && x<14 && y==0)	||
-					  (x>14 && y==0)	||
-					  (x==6 && y==1)	||
-					  (x==17 && y==1)	||
-					  ((x==0 || x==23) && (y==6 || y==8))	||
-					  (x>9 && x<15 && y>9 && y<17)	||
-					  (x==23 && y>12 && y<15)	||
-					  (x==0 && (y==16 || y==18))	||
-					  (x==23 && (y==18 || y==20))	||
-					  ((x==6 || x==8 || x==15 || x==17) && y==24))
-				  tiles[x][y] = new Tile("Inaccessible",x,y);
 			  else 
 				  tiles[x][y] = new Tile("Walkway",x,y);
 		  }
@@ -301,7 +279,6 @@ public class Board{
 	  doors.add(new Door(new Tile("Walkway", 6, 16), new Tile("Dining Room", 6, 15)));
 	  doors.add(new Door(new Tile("Walkway", 8, 12), new Tile("Dining Room", 7, 12)));
 	  
-	  
 	  int nplayers = inputNumber("How many players?");
 	  while(nplayers < 3 || nplayers > 6)  nplayers = inputNumber("How many players? Must be 3-6."); 
 	  String text = "Which character would you like?\n"
@@ -311,16 +288,21 @@ public class Board{
 		  + "4:\t Mr. Green.\n"
 		  + "5:\t Mrs. Peacock.\n"
 		  + "6:\t Prof. Plum.\n";
+	  System.out.println(text);
 	  for(int i=0; i<nplayers; i++) {
-		  System.out.printf("Player '"+(i+1)+"' is choosing.\n");
-		  int selection = inputNumber(text);
-		  while(selection < 1 || selection > 6 || players.get(selection).isPlaying()) {
-			  System.out.printf("You must choose a number between 1-6!\n");
-			  System.out.printf("Player '"+(i+1)+"' is choosing.\n");
-			  selection = inputNumber(text);
+		  System.out.printf("Player '"+(i+1)+"' is choosing: ");
+		  int selection = inputNumber("");
+		  while(selection < 1 || selection > 6) {
+			  System.out.println("You must choose a number between 1-6!");
+			  System.out.printf("Player '"+(i+1)+"' is choosing: ");
+			  selection = inputNumber("");
+		  }
+		  while(players.get(selection-1).isPlaying()) {
+			  System.out.println("Character is already selected!");
+			  System.out.printf("Player '"+(i+1)+"' is choosing: ");
+			  selection = inputNumber("");
 		  }
 		  players.get(selection-1).setPlayer(i);
-		  System.out.println("Player "+(i+1)+" chose "+selection+"!");
 	  } 
 	  
 	  int nextPlayer = (int)Math.random()*(nplayers)-1;
@@ -331,6 +313,22 @@ public class Board{
 		  cards.remove(randomCard);
 	  }
 	  
-	  new Board(tiles, players, weapons, murderCards, doors);
+	  Board board = new Board(tiles, players, weapons, murderCards);
+	  board.drawTiles();
+  }
+  
+  private void drawTiles() {
+	  for(int y=0; y<25; y++) {
+		  System.out.print(y+"\t|");
+		  for(int x=0; x<24; x++) {
+			  String roomName = tiles[x][y].getName();
+			  if(roomName.equals("Inaccessible"))
+				  System.out.printf("%s", 'X');
+			  else
+				  System.out.printf("%s", ' ');
+		  }
+		  System.out.print("|\n");
+	  }
   }
 }
+
