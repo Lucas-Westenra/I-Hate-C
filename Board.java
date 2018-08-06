@@ -279,6 +279,19 @@ public class Board{
 	  doors.add(new Door(new Tile("Walkway", 6, 16), new Tile("Dining Room", 6, 15)));
 	  doors.add(new Door(new Tile("Walkway", 8, 12), new Tile("Dining Room", 7, 12)));
 	  
+	  for(Door door: doors) {
+		  int x1 = door.t1.getXPos(); int y1 = door.t1.getYPos();
+		  int x2 = door.t2.getXPos(); int y2 = door.t2.getYPos();
+		  tiles[x1][y1].setDoor();
+		  tiles[x2][y2].setDoor();
+	  }
+	  for(Player player: players) {
+		  tiles[player.getPosition().getXPos()][player.getPosition().getYPos()].setPlayer(player);
+	  }
+	  for(Weapon weapon: weapons) {
+		  tiles[weapon.getPosition().getXPos()][weapon.getPosition().getYPos()].setWeapon(weapon);
+	  }
+	  
 	  int nplayers = inputNumber("How many players?");
 	  while(nplayers < 3 || nplayers > 6)  nplayers = inputNumber("How many players? Must be 3-6."); 
 	  String text = "Which character would you like?\n"
@@ -318,17 +331,24 @@ public class Board{
   }
   
   private void drawTiles() {
+	  System.out.printf("%s", "\txxxxxxxxxxxxxxxxxxxxxxxxxx\n");
 	  for(int y=0; y<25; y++) {
-		  System.out.print(y+"\t|");
+		  System.out.print(y+"\tx");
 		  for(int x=0; x<24; x++) {
 			  String roomName = tiles[x][y].getName();
-			  if(roomName.equals("Inaccessible"))
-				  System.out.printf("%s", 'X');
+			  if(tiles[x][y].player != null) System.out.printf("%s", tiles[x][y].player.getPiece());
+			  else if(tiles[x][y].isDoor) System.out.printf("%s", "o");
+			  else if(tiles[x][y].weapon != null) System.out.printf("%s", tiles[x][y].weapon.getPiece());
+			  else if(roomName.equals("Inaccessible"))
+				  System.out.printf("%s", 'x');
+			  else if(!roomName.equals("Walkway"))
+				  System.out.printf("%s", '*');
 			  else
 				  System.out.printf("%s", ' ');
 		  }
-		  System.out.print("|\n");
+		  System.out.print("x\n");
 	  }
+	  System.out.printf("%s", "\txxxxxxxxxxxxxxxxxxxxxxxxxx");
   }
 }
 
