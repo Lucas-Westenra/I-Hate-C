@@ -177,7 +177,7 @@ public class Board{
   }
    
    public static int rollDice() {
-	   int num = (int)(Math.random()*6+1);
+	   int num = (int)(Math.random()*6+2);
 	   
 	   return num;
    }
