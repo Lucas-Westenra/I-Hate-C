@@ -15,6 +15,8 @@ public class Board{
   private List<Player> players;
   private List<Door> doors;
   private List<Player> turnOrder = new ArrayList<Player>();
+  
+  public enum dir{NORTH, EAST, SOUTH, WEST}
 
   //------------------------
   // CONSTRUCTOR
@@ -152,41 +154,90 @@ public class Board{
 			}
 		}
 	}
-	
-   public boolean canMove(Tile current, Tile next) {
-	  Door enterRoom = new Door(current, next);
-	  Door exitRoom = new Door(next, current);
-	 
-	  for(Door d: doors){ //Checks if the player is trying to move from one room to another via a door
-		  if(enterRoom.equals(d)) {
-			  return true;
-		  }
-		  if(exitRoom.equals(d)) {
-			  return true;
-		  }
-	  }
-	  
-	  if(!(current.getName().equals(next.getName()))) { //Doesn't allow movement from one location to another
-		  return false;
-	  }
-	  
-	  if(next.player != null) {
-		  return false;
-	  }
-	  return true; //True if player is moving between two tiles that are in the same room
-  }
-   
-   public static int rollDice() {
-	   int num = (int)(Math.random()*12+2);
-	   
-	   return num;
-   }
-   
-   public static void movePlayer(Player p, char dir) {
-	   
-   }
-   
   
+  	private boolean movePlayer(Player player, dir dir) {
+	  Tile current = player.getPosition();
+	  int x = current.getXPos();
+	  int y = current.getYPos();
+	  Tile next;
+	  switch(dir){
+		  case NORTH:
+			  next = tiles[x][y-1];
+			  if(canMove(current, next)) {
+				  next.setPlayer(player);
+				  current.setPlayer(null);
+				  player.setPosition(next);
+				  return true;
+			  }
+		  case SOUTH:
+			  next = tiles[x][y+1];
+			  if(canMove(current, next)) {
+				  next.setPlayer(player);
+				  current.setPlayer(null);
+				  player.setPosition(next);
+				  return true;
+			  }
+		  case EAST:
+			  next = tiles[x+1][y];
+			  if(canMove(current, next)) {
+				  next.setPlayer(player);
+				  current.setPlayer(null);
+				  player.setPosition(next);
+				  return true;
+			  }
+		  case WEST:
+			  next = tiles[x-1][y];
+			  if(canMove(current, next)) {
+				  next.setPlayer(player);
+				  current.setPlayer(null);
+				  player.setPosition(next);
+				  return true;
+			  }
+	  }
+	  return false;
+	}
+	
+  	public boolean canMove(Tile current, Tile next) {
+  		Door enterRoom = new Door(current, next);
+  		Door exitRoom = new Door(next, current);
+	 
+  		for(Door d: doors){ //Checks if the player is trying to move from one room to another via a door
+  			if(enterRoom.equals(d)) {
+  				return true;
+  			}
+  			if(exitRoom.equals(d)) {
+  				return true;
+  			}
+  		}
+	  
+  		if(!(current.getName().equals(next.getName()))) { //Doesn't allow movement from one location to another
+  			return false;
+  		}
+	  
+  		if(next.player != null) {
+  			return false;
+  		}
+  		return true; //True if player is moving between two tiles that are in the same room
+  	}
+   
+  	public static int rollDice() {
+  		return (int)(Math.random()*10+2);
+  	}
+  	
+  	private void takeTurn(Player player) {
+  		int moves = rollDice();
+  		if(moves>8)
+  			System.out.println("Player "+player.getPlayer()+" rolled a "+moves+"!");
+  		else
+  			System.out.println("Player "+player.getPlayer()+" rolled a "+moves+".");
+  		for(int i=0; i<moves; i++) {
+  			if(i>0) System.out.println("You have "+i+1+" moves left.");
+  			//somehow choose direction,	might have to make another method to return the direction
+//  			while(!movePlayer(player, /*direction*/)) {
+//  				System.out.println("Cannot move in direction "/*+ direction*/);
+//  			}
+  		}
+  	}
   
   public static void main(String[] args) {
 	  Tile[][] tiles = new Tile[24][25];
@@ -222,7 +273,7 @@ public class Board{
 				  tiles[x][y] = new Tile("Cellar",x,y);
 			  else if(x>17 && y>7 && y<13)
 				  tiles[x][y] = new Tile("Billiard Room",x,y);
-			  else if((x>17 && y>13 && y<19) || (x==16 && y>14 && y<18))
+			  else if((x>17 && y>13 && y<19) || (x==17 && y>14 && y<18))
 				  tiles[x][y] = new Tile("Library",x,y);
 			  else if(x<7 && y>18) 
 				  tiles[x][y] = new Tile("Lounge",x,y);
@@ -351,9 +402,15 @@ public class Board{
   }
   
   private void drawTiles() {
-	  System.out.printf("%s", "\txxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	  System.out.print("\t\t\t   Ball\n");
+	  System.out.print("\t\t\t   Room\n");
+	  System.out.print("\t\txxxxxxxxxxxxxxxxxxxxxxxxxx");
 	  for(int y=0; y<25; y++) {
-		  System.out.print(y+"\tx");
+		  System.out.println();
+		  if(y==3) System.out.print("KITCHEN\t\tx");
+		  else if(y==13) System.out.print("DINING ROOM\tx");
+		  else if(y==22) System.out.print("LOUNGE\t\tx");
+		  else System.out.print("\t\tx");
 		  for(int x=0; x<24; x++) {
 			  String roomName = tiles[x][y].getName();
 			  if(tiles[x][y].player != null) System.out.printf("%s", tiles[x][y].player.getPiece());
@@ -365,10 +422,17 @@ public class Board{
 				  System.out.printf("%s", '*');
 			  else
 				  System.out.printf("%s", ' ');
+			  
 		  }
-		  System.out.print("x\n");
+		  System.out.print("x");
+		  if(y==3) System.out.print(" Conservatory");
+		  if(y==10) System.out.print(" Billiard");
+		  if(y==11) System.out.print(" Room");
+		  if(y==15) System.out.print(" Library");
+		  if(y==23) System.out.print(" Study");
 	  }
-	  System.out.printf("%s", "\txxxxxxxxxxxxxxxxxxxxxxxxxx" + "\n");
+	  System.out.printf("%s", "\n\t\txxxxxxxxxxxxxxxxxxxxxxxxxx" + "\n");
+	  System.out.print("\t\t\t   Hall\n");
   }
 }
 
