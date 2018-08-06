@@ -3,11 +3,26 @@ public class Tile{
   private String name;
   private int xPos;
   private int yPos;
+  Player player = null;
+  Weapon weapon = null;
+  Boolean isDoor = false;
 
   public Tile(String name, int xPos, int yPos){
     this.name = name;
     this.xPos = xPos;
     this.yPos = yPos;
+  }
+  
+  public void setPlayer(Player player) {
+	  this.player = player;
+  }
+  
+  public void setWeapon(Weapon weapon) {
+	  this.weapon = weapon;
+  }
+  
+  public void setDoor() {
+	  this.isDoor = true;
   }
 
   public void setName(String name){
