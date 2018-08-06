@@ -169,8 +169,24 @@ public class Board{
 	  if(!(current.getName().equals(next.getName()))) { //Doesn't allow movement from one location to another
 		  return false;
 	  }
+	  
+	  if(next.player != null) {
+		  return false;
+	  }
 	  return true; //True if player is moving between two tiles that are in the same room
   }
+   
+   public static int rollDice() {
+	   int num = (int)(Math.random()*6+1);
+	   
+	   return num;
+   }
+   
+   public static void movePlayer(Player p, char dir) {
+	   
+   }
+   
+  
   
   public static void main(String[] args) {
 	  Tile[][] tiles = new Tile[24][25];
@@ -328,6 +344,10 @@ public class Board{
 	  
 	  Board board = new Board(tiles, players, weapons, murderCards, doors);
 	  board.drawTiles();
+	  
+	  int playerRoll = rollDice();
+	  System.out.println("Player 1, it's your turn! The dice roll and you get a... " + playerRoll);
+	  
   }
   
   private void drawTiles() {
@@ -348,7 +368,7 @@ public class Board{
 		  }
 		  System.out.print("x\n");
 	  }
-	  System.out.printf("%s", "\txxxxxxxxxxxxxxxxxxxxxxxxxx");
+	  System.out.printf("%s", "\txxxxxxxxxxxxxxxxxxxxxxxxxx" + "\n");
   }
 }
 
