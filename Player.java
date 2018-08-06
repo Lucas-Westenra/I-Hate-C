@@ -70,6 +70,7 @@ public class Player
 	  return isPlayer!=-1;
   }
 
+  public int getPlayer() { return isPlayer; }
 
   public int numberOfCards()
   {
