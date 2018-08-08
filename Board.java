@@ -57,20 +57,10 @@ public class Board{
   {
     return playersTurn;
   }
-
-  public boolean hasTiles()
-  {
-    return tiles[0][0] == null;
-  }
-
+	
   public Weapon getWeapon(int index){
     Weapon aWeapon = weapons.get(index);
     return aWeapon;
-  }
-
-  public Player getPlayer(int index){
-    Player aPlayer = players.get(index);
-    return aPlayer;
   }
 
   private static int inputNumber(String msg) {
