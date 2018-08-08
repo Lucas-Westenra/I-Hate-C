@@ -3,7 +3,6 @@ import java.util.*;
 
 public class Board{
 
-
   //Board Attributes
   private Player playersTurn;
   private List<Card> murderCards;
@@ -17,10 +16,11 @@ public class Board{
   private List<Player> turnOrder = new ArrayList<Player>();
   
   public enum dir{NORTH, EAST, SOUTH, WEST}
+  
+  static boolean gameOver = false;
+  
 
-  //------------------------
-  // CONSTRUCTOR
-  //------------------------
+
 
   public Board(Tile[][] tiles, List<Player> players, List<Weapon> weapons,
 		  List<Card> murderCards, List<Door> doors)
@@ -36,10 +36,6 @@ public class Board{
     this.weapons = weapons;
     this.players = players;
   }
-
-  //------------------------
-  // INTERFACE
-  //------------------------
 
   public boolean setPlayersTurn(Player aPlayersTurn)
   {
@@ -82,57 +78,9 @@ public class Board{
     return aWeapon;
   }
 
-  public List<Weapon> getWeapons(){
-    List<Weapon> newWeapons = Collections.unmodifiableList(weapons);
-    return newWeapons;
-  }
-
   public Player getPlayer(int index){
     Player aPlayer = players.get(index);
     return aPlayer;
-  }
-
-  public List<Player> getPlayers()
-  {
-    List<Player> newPlayers = Collections.unmodifiableList(players);
-    return newPlayers;
-  }
-
-  public int numberOfPlayers()
-  {
-    int number = players.size();
-    return number;
-  }
-
-  public boolean hasPlayers()
-  {
-    boolean has = players.size() > 0;
-    return has;
-  }
-
-  public int indexOfPlayer(Player aPlayer)
-  {
-    int index = players.indexOf(aPlayer);
-    return index;
-  }
-  
-  public static int requiredNumberOfTiles()
-  {
-    return 600;
-  }
-
-  /* Code from template association_IsNumberOfValidMethod */
-  public boolean isNumberOfPlayersValid(){
-    boolean isValid = numberOfPlayers() >= minimumNumberOfPlayers() && numberOfPlayers() <= maximumNumberOfPlayers();
-    return isValid;
-  }
-  
-  public static int minimumNumberOfPlayers(){
-    return 3;
-  }
-
-  public static int maximumNumberOfPlayers(){
-    return 6;
   }
 
   public String toString(){
@@ -155,6 +103,20 @@ public class Board{
 		}
 	}
   
+  private static String inputString(String msg) {
+	  System.out.print(msg + " ");
+		while (true) {
+			BufferedReader input = new BufferedReader(new InputStreamReader(
+					System.in)); 
+			try {
+				String v = input.readLine().toLowerCase();
+				return v;
+			} catch (NumberFormatException | IOException e) {
+				System.out.println("Please enter a character!");
+			}
+		}
+  }
+  
   	private boolean movePlayer(Player player, dir dir) {
 	  Tile current = player.getPosition();
 	  int x = current.getXPos();
@@ -162,6 +124,7 @@ public class Board{
 	  Tile next;
 	  switch(dir){
 		  case NORTH:
+			  if(y-1<0)return false;
 			  next = tiles[x][y-1];
 			  if(canMove(current, next)) {
 				  next.setPlayer(player);
@@ -169,7 +132,9 @@ public class Board{
 				  player.setPosition(next);
 				  return true;
 			  }
+			  break;
 		  case SOUTH:
+			  if(y+1>24)return false;
 			  next = tiles[x][y+1];
 			  if(canMove(current, next)) {
 				  next.setPlayer(player);
@@ -177,7 +142,9 @@ public class Board{
 				  player.setPosition(next);
 				  return true;
 			  }
+			  break;
 		  case EAST:
+			  if(x+1>23)return false;
 			  next = tiles[x+1][y];
 			  if(canMove(current, next)) {
 				  next.setPlayer(player);
@@ -185,7 +152,9 @@ public class Board{
 				  player.setPosition(next);
 				  return true;
 			  }
+			  break;
 		  case WEST:
+			  if(x-1<0)return false;
 			  next = tiles[x-1][y];
 			  if(canMove(current, next)) {
 				  next.setPlayer(player);
@@ -193,31 +162,34 @@ public class Board{
 				  player.setPosition(next);
 				  return true;
 			  }
+			  break;
 	  }
 	  return false;
 	}
 	
   	public boolean canMove(Tile current, Tile next) {
-  		Door enterRoom = new Door(current, next);
-  		Door exitRoom = new Door(next, current);
-	 
-  		for(Door d: doors){ //Checks if the player is trying to move from one room to another via a door
-  			if(enterRoom.equals(d)) {
-  				return true;
-  			}
-  			if(exitRoom.equals(d)) {
-  				return true;
-  			}
-  		}
-	  
-  		if(!(current.getName().equals(next.getName()))) { //Doesn't allow movement from one location to another
-  			return false;
-  		}
-	  
+  		if(next.getName().equals("Inaccessible"))return false;
   		if(next.player != null) {
   			return false;
   		}
-  		return true; //True if player is moving between two tiles that are in the same room
+  		if(current.getName().equals(next.getName())) { //Allows movement within the same room
+  			return true;
+  		}
+  		
+  		if(current.isDoor && next.isDoor) {
+				return true;
+		}
+  		
+  		for(Door d: doors){ //Checks if the player is trying to move from one room to another via a door
+//  			if(current.equals(d.t1) || current.equals(d.t2)) {
+//  				if(next.equals(d.t1) || next.equals(d.t2))return true;
+//  				System.out.println("aaaaa");
+//  			}
+  			
+
+  		}
+
+  		return false;
   	}
    
   	public static int rollDice() {
@@ -226,12 +198,43 @@ public class Board{
   	
   	private void takeTurn(Player player) {
   		int moves = rollDice();
-  		if(moves>8)
-  			System.out.println("Player "+player.getPlayer()+" rolled a "+moves+"!");
-  		else
-  			System.out.println("Player "+player.getPlayer()+" rolled a "+moves+".");
-  		for(int i=0; i<moves; i++) {
-  			if(i>0) System.out.println("You have "+i+1+" moves left.");
+  		
+  		System.out.println(player.getName() +" rolled a "+moves+"!");
+
+  		for(int i=moves; i>0; i--) {
+			boolean noMove = true;
+			while(noMove) {
+				System.out.println(player.getName() + " has " + i + " moves left.");
+  				String inp = inputString("Enter a direction (W/A/S/D): ");
+				
+  				if(inp.equals("w")) {
+  					if(movePlayer(player, dir.NORTH)) {
+  						noMove = false;
+  					}
+  				}
+  				else if(inp.equals("a")) {
+  					if(movePlayer(player, dir.WEST)) {
+  						noMove = false;
+  					}
+  				}
+  				else if(inp.equals("s")) {
+  					if(movePlayer(player, dir.SOUTH)) {
+  						noMove = false;
+  					}
+  				}
+  				else if(inp.equals("d")) {
+  					if(movePlayer(player, dir.EAST)) {
+  						noMove = false;
+  					}
+  				}
+  				else {
+  					System.out.println("Enter wasd");
+  				}
+  			}
+  				
+
+  			drawTiles();	
+  				
   			//somehow choose direction,	might have to make another method to return the direction
 //  			while(!movePlayer(player, /*direction*/)) {
 //  				System.out.println("Cannot move in direction "/*+ direction*/);
@@ -359,8 +362,13 @@ public class Board{
 		  tiles[weapon.getPosition().getXPos()][weapon.getPosition().getYPos()].setWeapon(weapon);
 	  }
 	  
-	  int nplayers = inputNumber("How many players?");
-	  while(nplayers < 3 || nplayers > 6)  nplayers = inputNumber("How many players? Must be 3-6."); 
+	  System.out.println("\t\tCLUEDO");
+	  int nplayers = inputNumber("Enter the number of players that are playing: ");
+	  
+	  while(nplayers < 3 || nplayers > 6) {  
+		  System.out.println("The amount of players must be between 3-6");
+		  nplayers = inputNumber("Enter the number of players that are playing: "); 
+	  }
 	  String text = "Which character would you like?\n"
 		  + "1:\t Miss Scarlett.\n"
 		  + "2:\t Col. Mustard.\n"
@@ -370,7 +378,7 @@ public class Board{
 		  + "6:\t Prof. Plum.\n";
 	  System.out.println(text);
 	  for(int i=0; i<nplayers; i++) {
-		  System.out.printf("Player '"+(i+1)+"' is choosing: ");
+		  System.out.printf("Player '"+(i+1)+"' choose your character: ");
 		  int selection = inputNumber("");
 		  while(selection < 1 || selection > 6) {
 			  System.out.println("You must choose a number between 1-6!");
@@ -379,7 +387,7 @@ public class Board{
 		  }
 		  while(players.get(selection-1).isPlaying()) {
 			  System.out.println("Character is already selected!");
-			  System.out.printf("Player '"+(i+1)+"' is choosing: ");
+			  System.out.printf("Player '"+(i+1)+"' choose your character: ");
 			  selection = inputNumber("");
 		  }
 		  players.get(selection-1).setPlayer(i);
@@ -396,43 +404,61 @@ public class Board{
 	  Board board = new Board(tiles, players, weapons, murderCards, doors);
 	  board.drawTiles();
 	  
-	  int playerRoll = rollDice();
-	  System.out.println("Player 1, it's your turn! The dice roll and you get a... " + playerRoll);
+	  int playerTurn = 0;
+	  while(!gameOver) {
+		  for(Player p: players) {
+			  if(p.getPlayer() == playerTurn) {
+				  board.takeTurn(p);
+				  playerTurn++;
+			  }
+		  }
+		  playerTurn=0;
+	  }
+	  
 	  
   }
   
   private void drawTiles() {
-	  System.out.print("\t\t\t   Ball\n");
-	  System.out.print("\t\t\t   Room\n");
-	  System.out.print("\t\txxxxxxxxxxxxxxxxxxxxxxxxxx");
+	  System.out.print("\t\t\t   BALL\n");
+	  System.out.print("\t\t\t   ROOM\n");
+	  System.out.print("\t\t");
+	  for(int i = 0; i<=25; i++) {
+		  System.out.print('\u2588');
+	  }
+
+	  
 	  for(int y=0; y<25; y++) {
 		  System.out.println();
-		  if(y==3) System.out.print("KITCHEN\t\tx");
-		  else if(y==13) System.out.print("DINING ROOM\tx");
-		  else if(y==22) System.out.print("LOUNGE\t\tx");
-		  else System.out.print("\t\tx");
+		  if(y==3) System.out.print("KITCHEN\t\t"+'\u2588');
+		  else if(y==13) System.out.print("DINING ROOM\t"+'\u2588');
+		  else if(y==22) System.out.print("LOUNGE\t\t"+'\u2588');
+		  else System.out.print("\t\t"+ '\u2588');
 		  for(int x=0; x<24; x++) {
 			  String roomName = tiles[x][y].getName();
 			  if(tiles[x][y].player != null) System.out.printf("%s", tiles[x][y].player.getPiece());
-			  else if(tiles[x][y].isDoor) System.out.printf("%s", "o");
+			  else if(tiles[x][y].isDoor) System.out.printf("%s", "|");
 			  else if(tiles[x][y].weapon != null) System.out.printf("%s", tiles[x][y].weapon.getPiece());
 			  else if(roomName.equals("Inaccessible"))
-				  System.out.printf("%s", 'x');
+				  System.out.printf("%s", '\u2588');
 			  else if(!roomName.equals("Walkway"))
-				  System.out.printf("%s", '*');
+				  System.out.printf("%s", '.');
 			  else
 				  System.out.printf("%s", ' ');
 			  
 		  }
-		  System.out.print("x");
-		  if(y==3) System.out.print(" Conservatory");
-		  if(y==10) System.out.print(" Billiard");
-		  if(y==11) System.out.print(" Room");
-		  if(y==15) System.out.print(" Library");
-		  if(y==23) System.out.print(" Study");
+		  System.out.print('\u2588');
+		  if(y==3) System.out.print(" CONSERVATORY");
+		  if(y==10) System.out.print(" BILLIARD");
+		  if(y==11) System.out.print("   ROOM");
+		  if(y==15) System.out.print(" LIBRARY");
+		  if(y==23) System.out.print(" STUDY");
 	  }
-	  System.out.printf("%s", "\n\t\txxxxxxxxxxxxxxxxxxxxxxxxxx" + "\n");
-	  System.out.print("\t\t\t   Hall\n");
+	  System.out.printf("%s", "\n\t\t");
+	  for(int i = 0; i<=25; i++) {
+		  System.out.print('\u2588');
+	  }
+	  
+	  System.out.print("\n\t\t\t   HALL\n");
   }
 }
 
