@@ -179,16 +179,6 @@ public class Board{
   		if(current.isDoor && next.isDoor) {
 				return true;
 		}
-  		
-  		for(Door d: doors){ //Checks if the player is trying to move from one room to another via a door
-//  			if(current.equals(d.t1) || current.equals(d.t2)) {
-//  				if(next.equals(d.t1) || next.equals(d.t2))return true;
-//  				System.out.println("aaaaa");
-//  			}
-  			
-
-  		}
-
   		return false;
   	}
    
@@ -198,7 +188,7 @@ public class Board{
   	
   	private void takeTurn(Player player) {
   		int moves = rollDice();
-  		
+  		String tileName = "Walkway";
   		System.out.println(player.getName() +" rolled a "+moves+"!");
 
   		for(int i=moves; i>0; i--) {
@@ -230,16 +220,52 @@ public class Board{
   				else {
   					System.out.println("Enter wasd");
   				}
+  				
   			}
   				
 
   			drawTiles();	
-  				
-  			//somehow choose direction,	might have to make another method to return the direction
-//  			while(!movePlayer(player, /*direction*/)) {
-//  				System.out.println("Cannot move in direction "/*+ direction*/);
-//  			}
+  			tileName = player.getPosition().getName();
+  			if(!tileName.equals("Walkway")) {
+  				String ans = "";
+				while(ans.equalsIgnoreCase("y") ||ans.equalsIgnoreCase("n"))
+					ans = inputString("You are in the "+tileName+". Do you want to end your turn? (Y/N)");
+				if(ans.equalsIgnoreCase("y")) i=0;
+				else if(!ans.equalsIgnoreCase("n")) {System.out.println("Invalid response. Expected 'Y' or 'N'.");}
+			}
   		}
+  		String choice = getEndTurnChoice(tileName);
+  		
+  		//***************************** these need to be done
+  		if(choice.equals("accu")) doAccusation(player);
+  		if(choice.equals("suggest")) doSuggestion(player, tileName);
+  	}
+  	
+  	private String getEndTurnChoice(String tileName) {
+  		int ans = 0;
+		if(tileName.equals("Walkway")) {
+			while(ans != 1 && ans != 2) 
+				ans = inputNumber("1. Make an accusation. (1 per game):\n"
+					+ "2. End turn.");
+			if(ans == 1) return "accu";
+		}
+		else {
+			while(ans != 1 && ans != 2 && ans != 3)
+				ans = inputNumber("1. Make an accusation. (1 per game):\n"
+						+ "2. Make a suggestion. (Using room '"+tileName+"'):\n"
+								+ "3. End turn:");
+			if(ans == 1) return "accu";
+			if(ans == 2) return "suggest";
+		} 
+		return "end";
+  	}
+  	
+  	private void doSuggestion(Player player, String tileName) {
+  		//************************
+  	}
+  	
+  	private void doAccusation(Player player) {
+  		//************************
   	}
   
   public static void main(String[] args) {
@@ -257,7 +283,7 @@ public class Board{
 					  (x>14 && y==0)	||
 					  (x==6 && y==1)	||
 					  (x==17 && y==1)	||
-					  ((x==0 || x==23) && (y==6 || y==8))	||
+					  ((x==0 || x==23) && (y==5 || y==7))	||
 					  (x>9 && x<15 && y>9 && y<17)	||
 					  (x==23 && y>12 && y<15)	||
 					  (x==0 && (y==16 || y==18))	||
@@ -268,7 +294,7 @@ public class Board{
 				  tiles[x][y] = new Tile("Kitchen",x,y);
 			  else if((x>=8 && x<16 && y>=2 && y<8) || (x>=10 && x<14 && y==1))
 				  tiles[x][y] = new Tile("Ball Room",x,y);
-			  else if((x>=18 && y<4) || (x>=19 && y==4)) 
+			  else if((x>=18 && y<5) || (x>=19 && y==5)) 
 				  tiles[x][y] = new Tile("Conservatory",x,y);
 			  else if((x<5 && y==9) || (x<8 && y>9 && y<16))
 				  tiles[x][y] = new Tile("Dining Room",x,y);
