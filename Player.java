@@ -16,6 +16,7 @@ public class Player
     this.position=position;
     this.piece=piece;
     this.playing=playing;
+    this.hand = new ArrayList<Card>();
   }
 
   public void setName(String name){
@@ -53,7 +54,8 @@ public class Player
   }
   
   public void addToHand(Card card){
-	  this.hand.add(card);
+	  if(card == null) System.out.println("asdasdasd");
+	  else this.hand.add(card);
   }
 
   public char getPiece()
