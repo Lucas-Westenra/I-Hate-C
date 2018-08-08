@@ -3,11 +3,20 @@ public class Card
 {
   private String name;
   private String type;
+  private Player player;
 
   public Card(String name, String type)
   {
     this.name = name;
     this.type = type;
+  }
+  
+  public void setPlayer(Player player) {
+	  this.player = player;
+  }
+  
+  public Player getPlayer() {
+	  return this.player;
   }
 
   public void setName(String name)
