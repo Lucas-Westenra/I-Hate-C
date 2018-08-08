@@ -19,7 +19,7 @@ public class Board{
   
   static boolean gameOver = false;
   
-
+  private List<Tile> moveTiles = new ArrayList<Tile>();
 
 
   public Board(Tile[][] tiles, List<Player> players, List<Weapon> weapons,
@@ -58,16 +58,6 @@ public class Board{
     return playersTurn;
   }
 
-  public List getMurderCards()
-  {
-    return murderCards;
-  }
-  /* Code from template association_GetMany */
-  public int numberOfTiles()
-  {
-    return 24*25;
-  }
-
   public boolean hasTiles()
   {
     return tiles[0][0] == null;
@@ -83,12 +73,6 @@ public class Board{
     return aPlayer;
   }
 
-  public String toString(){
-    return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "playersTurn" + "=" + (getPlayersTurn() != null ? !getPlayersTurn().equals(this)  ? getPlayersTurn().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "murderCards" + "=" + (getMurderCards() != null ? !getMurderCards().equals(this)  ? getMurderCards().toString().replaceAll("  ","    ") : "this" : "null");
-  }
-  
   private static int inputNumber(String msg) {
 		System.out.print(msg + " ");
 		while (true) {
@@ -119,6 +103,7 @@ public class Board{
   
   	private boolean movePlayer(Player player, dir dir) {
 	  Tile current = player.getPosition();
+	  moveTiles.add(current);
 	  int x = current.getXPos();
 	  int y = current.getYPos();
 	  Tile next;
@@ -126,6 +111,14 @@ public class Board{
 		  case NORTH:
 			  if(y-1<0)return false;
 			  next = tiles[x][y-1];
+			  for(Tile t: moveTiles) {
+				  if(t.equals(next)) {
+					  System.out.println("You have already been in this tile");
+					  return false;
+				  }
+			  }
+			  moveTiles.add(next);
+			  
 			  if(canMove(current, next)) {
 				  next.setPlayer(player);
 				  current.setPlayer(null);
@@ -136,6 +129,13 @@ public class Board{
 		  case SOUTH:
 			  if(y+1>24)return false;
 			  next = tiles[x][y+1];
+			  for(Tile t: moveTiles) {
+				  if(t.equals(next)) {
+					  System.out.println("You have already been in this tile");
+					  return false;
+				  }
+			  }
+			  moveTiles.add(next);
 			  if(canMove(current, next)) {
 				  next.setPlayer(player);
 				  current.setPlayer(null);
@@ -146,6 +146,13 @@ public class Board{
 		  case EAST:
 			  if(x+1>23)return false;
 			  next = tiles[x+1][y];
+			  for(Tile t: moveTiles) {
+				  if(t.equals(next)) {
+					  System.out.println("You have already been in this tile");
+					  return false;
+				  }
+			  }
+			  moveTiles.add(next);
 			  if(canMove(current, next)) {
 				  next.setPlayer(player);
 				  current.setPlayer(null);
@@ -156,6 +163,13 @@ public class Board{
 		  case WEST:
 			  if(x-1<0)return false;
 			  next = tiles[x-1][y];
+			  for(Tile t: moveTiles) {
+				  if(t.equals(next)) {
+					  System.out.println("You have already been in this tile");
+					  return false;
+				  }
+			  }
+			  moveTiles.add(next);
 			  if(canMove(current, next)) {
 				  next.setPlayer(player);
 				  current.setPlayer(null);
@@ -223,7 +237,6 @@ public class Board{
   				
   			}
   				
-
   			drawTiles();	
   			tileName = player.getPosition().getName();
   			if(!tileName.equals("Walkway")) {
@@ -234,6 +247,7 @@ public class Board{
 				else if(!ans.equalsIgnoreCase("n")) {System.out.println("Invalid response. Expected 'Y' or 'N'.");}
 			}
   		}
+  		moveTiles.clear();
   		String choice = getEndTurnChoice(tileName);
   		
   		//***************************** these need to be done
@@ -422,8 +436,9 @@ public class Board{
 	  int nextPlayer = (int)Math.random()*(nplayers)-1;
 	  for(int i=cards.size(); i<=0; i--) {
 		  if(nextPlayer >= nplayers-1) nextPlayer = 0;
-		  int randomCard = (int)Math.random()*i-1;
+		  int randomCard = (int)Math.random()*i;
 		  players.get(nextPlayer).addToHand(cards.get(randomCard));
+		  //randomCard.setPlayer(players.get(nextPlayer));
 		  cards.remove(randomCard);
 	  }
 	  
@@ -462,7 +477,9 @@ public class Board{
 		  for(int x=0; x<24; x++) {
 			  String roomName = tiles[x][y].getName();
 			  if(tiles[x][y].player != null) System.out.printf("%s", tiles[x][y].player.getPiece());
-			  else if(tiles[x][y].isDoor) System.out.printf("%s", "|");
+			  else if(tiles[x][y].isDoor) {
+				  System.out.printf("%s", "|");
+			  }
 			  else if(tiles[x][y].weapon != null) System.out.printf("%s", tiles[x][y].weapon.getPiece());
 			  else if(roomName.equals("Inaccessible"))
 				  System.out.printf("%s", '\u2588');
@@ -487,4 +504,3 @@ public class Board{
 	  System.out.print("\n\t\t\t   HALL\n");
   }
 }
-
