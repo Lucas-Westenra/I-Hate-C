@@ -265,7 +265,9 @@ public class Board{
   	}
   	
   	private void doSuggestion(Player player, String tileName) {
-  		//************************
+  		System.out.println("Your hand is: \n");
+  		for(Card card: player.getHand())
+  			System.out.println("\t"+card.getType()+" "+card.getName());
   	}
   	
   	private void doAccusation(Player player) {
@@ -423,13 +425,16 @@ public class Board{
 		  players.get(selection-1).setPlayer(i);
 	  } 
 	  
-	  int nextPlayer = (int)Math.random()*(nplayers)-1;
-	  for(int i=cards.size(); i<=0; i--) {
-		  if(nextPlayer >= nplayers-1) nextPlayer = 0;
-		  int randomCard = (int)Math.random()*i;
+	  //not quite working
+	  int nextPlayer = (int)Math.random()*(nplayers);
+	  while(!players.get(nextPlayer).isPlaying()) nextPlayer++;
+	  for(int i=0; i<cards.size(); i++) {
+		  if(nextPlayer >= players.size()-1) nextPlayer = 0;
+		  int randomCard = (int)(Math.random()*(cards.size()-1));
 		  players.get(nextPlayer).addToHand(cards.get(randomCard));
-		  //randomCard.setPlayer(players.get(nextPlayer));
+		  cards.get(randomCard).setPlayer(players.get(nextPlayer));
 		  cards.remove(randomCard);
+		  while(!players.get(nextPlayer).isPlaying()) nextPlayer++;
 	  }
 	  
 	  Board board = new Board(tiles, players, weapons, murderCards, doors);
