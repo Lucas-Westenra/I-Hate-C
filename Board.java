@@ -209,6 +209,14 @@ public class Board{
   			if(tiles[x][y+1].getName().equals(name)) return tiles[x][y+1];
   		if(x>0)
   			if(tiles[x-1][y].getName().equals(name)) return tiles[x-1][y];
+  		if(y>1)
+  			if(tiles[x][y-1].getName().equals(name)) return tiles[x][y-2];
+  		if(x<22)
+  			if(tiles[x+1][y].getName().equals(name)) return tiles[x+2][y];
+  		if(y<23)
+  			if(tiles[x][y+1].getName().equals(name)) return tiles[x][y+2];
+  		if(x>1)
+  			if(tiles[x-1][y].getName().equals(name)) return tiles[x-2][y];
   		return null;
   	}
   	
@@ -294,19 +302,14 @@ public class Board{
   	}
   	
   	private void doSuggestion(Player player, String tileName) {
-  		List<Card> cardList = new ArrayList<Card>();
-  		for(Card card: allCards) cardList.add(card);
   		List<Card> roomCards = new ArrayList<Card>();
   		List<Card> playerCards = new ArrayList<Card>();
   		List<Card> weaponCards = new ArrayList<Card>();
   		System.out.println("Your hand is: ");
   		for(Card handCard: player.getHand()) { 
   			System.out.println("\t"+handCard.getType()+": "+handCard.getName());
-  			for(int i=cardList.size()-1; i>0; i--) 
-  				if(cardList.get(i).getName().equals(handCard.getName()) && !cardList.get(i).getType().equals("Room")) 
-  					cardList.remove(i);
   		}
-  		for(Card c: cardList) {
+  		for(Card c: allCards) {
 			if(c.getType().equals("Room")) roomCards.add(c);
 			else if(c.getType().equals("Player")) playerCards.add(c);
 			else if(c.getType().equals("Weapon")) weaponCards.add(c);
@@ -318,16 +321,23 @@ public class Board{
   		guessedCards.add(getGuess(playerCards, "character"));
   		guessedCards.add(getGuess(weaponCards, "weapon"));
   		for(Player p: players) {
-  			if(p.getName().equals(guessedCards.get(1).getName())) {
+  			if(p.getName().equals(guessedCards.get(1).getName()) && !guessedCards.get(1).getName().equals(player.getName())) {
 	  			p.getPosition().setPlayer(null);
 				p.setPosition(checkDir(player.getPosition()));
 				p.getPosition().setPlayer(p);
   			}
   		}
+  		for(Weapon w: weapons) {
+  			if(w.getName().equals(guessedCards.get(2).getName())) {
+  				w.getPosition().setWeapon(null);
+				w.setPosition(checkDir(player.getPosition()));
+				w.getPosition().setWeapon(w);
+  			}
+  		}
   		for(Player p: playing) {
   			for(Card c: guessedCards) {
   				if(p.getHand().contains(c)) {
-  					
+  
   				}
   			}
   		}
@@ -471,6 +481,7 @@ public class Board{
 		  tiles[weapon.getPosition().getXPos()][weapon.getPosition().getYPos()].setWeapon(weapon);
 	  }
 	  
+	  List<Player> playing = new ArrayList<Player>();
 	  System.out.println("\t\tCLUEDO");
 	  int nplayers = inputNumber("Enter the number of players that are playing: ");
 	  
@@ -500,10 +511,10 @@ public class Board{
 			  selection = inputNumber("");
 		  }
 		  players.get(selection-1).setPlayer(i);
+		  playing.add(players.get(selection-1));
+		  
 	  } 
 	  
-	  List<Player> playing = new ArrayList<Player>();
-	  for(int p=0; p<players.size()-1; p++) { if(players.get(p).isPlaying()) playing.add(players.get(p)); }
 	  int nextPlayer = (int)Math.random()*nplayers+1;
 	  while(!cards.isEmpty()) {
 		  if(nextPlayer >= nplayers) nextPlayer = 1;
@@ -517,15 +528,10 @@ public class Board{
 	  Board board = new Board(tiles, players, weapons, murderCards, doors, allCards, playing);
 	  board.drawTiles();
 	  
-	  //int playerTurn = 0;
 	  while(!gameOver) {
 		  for(Player p: playing) {
-			  //if(p.getPlayer() == playerTurn) {
-				  board.takeTurn(p);
-				  //playerTurn++;
-			  //}
+			  board.takeTurn(p);
 		  }
-		  //playerTurn=0;
 	  }
 	  
 	  
