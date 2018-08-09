@@ -13,7 +13,7 @@ public class Board{
   private List<Weapon> weapons;
   private List<Player> players;
   private List<Door> doors;
-  private List<Player> turnOrder = new ArrayList<Player>();
+  private List<Card> allCards;
   
   public enum dir{NORTH, EAST, SOUTH, WEST}
   
@@ -23,8 +23,9 @@ public class Board{
 
 
   public Board(Tile[][] tiles, List<Player> players, List<Weapon> weapons,
-		  List<Card> murderCards, List<Door> doors)
+		  List<Card> murderCards, List<Door> doors, List<Card> allCards)
   {
+	this.allCards = allCards;
     this.playersTurn = players.get((int)Math.random()*players.size());
     this.murderCards = murderCards;
     for(int x=0; x<24; x++) {
@@ -107,9 +108,9 @@ public class Board{
 					  return false;
 				  }
 			  }
-			  moveTiles.add(next);
 			  
 			  if(canMove(current, next)) {
+				  moveTiles.add(next);
 				  next.setPlayer(player);
 				  current.setPlayer(null);
 				  player.setPosition(next);
@@ -125,8 +126,9 @@ public class Board{
 					  return false;
 				  }
 			  }
-			  moveTiles.add(next);
+			  
 			  if(canMove(current, next)) {
+				  moveTiles.add(next);
 				  next.setPlayer(player);
 				  current.setPlayer(null);
 				  player.setPosition(next);
@@ -142,8 +144,9 @@ public class Board{
 					  return false;
 				  }
 			  }
-			  moveTiles.add(next);
+			  
 			  if(canMove(current, next)) {
+				  moveTiles.add(next);
 				  next.setPlayer(player);
 				  current.setPlayer(null);
 				  player.setPosition(next);
@@ -159,8 +162,9 @@ public class Board{
 					  return false;
 				  }
 			  }
-			  moveTiles.add(next);
+			  
 			  if(canMove(current, next)) {
+				  moveTiles.add(next);
 				  next.setPlayer(player);
 				  current.setPlayer(null);
 				  player.setPosition(next);
@@ -187,7 +191,8 @@ public class Board{
   	}
    
   	public static int rollDice() {
-  		return (int)(Math.random()*10+2);
+  		return 40;
+  		//return (int)(Math.random()*10+2);
   	}
   	
   	private void takeTurn(Player player) {
@@ -199,30 +204,35 @@ public class Board{
 			boolean noMove = true;
 			while(noMove) {
 				System.out.println(player.getName() + " has " + i + " moves left.");
-  				String inp = inputString("Enter a direction (W/A/S/D): ");
+  				String inp = inputString("Enter a direction (W/A/S/D/Hand): ");
 				
-  				if(inp.equals("w")) {
+  				if(inp.equalsIgnoreCase("w")) {
   					if(movePlayer(player, dir.NORTH)) {
   						noMove = false;
   					}
   				}
-  				else if(inp.equals("a")) {
+  				else if(inp.equalsIgnoreCase("a")) {
   					if(movePlayer(player, dir.WEST)) {
   						noMove = false;
   					}
   				}
-  				else if(inp.equals("s")) {
+  				else if(inp.equalsIgnoreCase("s")) {
   					if(movePlayer(player, dir.SOUTH)) {
   						noMove = false;
   					}
   				}
-  				else if(inp.equals("d")) {
+  				else if(inp.equalsIgnoreCase("d")) {
   					if(movePlayer(player, dir.EAST)) {
   						noMove = false;
   					}
   				}
+  				else if(inp.equalsIgnoreCase("hand")){
+  					System.out.println("Your hand is: ");
+  			  		for(Card card: player.getHand())
+  			  			System.out.println("\t"+card.getType()+": "+card.getName());
+  				}
   				else {
-  					System.out.println("Enter wasd");
+  					System.out.println("Enter W/A/S/D/Hand");
   				}
   				
   			}
@@ -231,7 +241,7 @@ public class Board{
   			tileName = player.getPosition().getName();
   			if(!tileName.equals("Walkway")) {
   				String ans = "";
-				while(ans.equalsIgnoreCase("y") ||ans.equalsIgnoreCase("n"))
+				while(!ans.equalsIgnoreCase("y") && !ans.equalsIgnoreCase("n"))
 					ans = inputString("You are in the "+tileName+". Do you want to end your turn? (Y/N)");
 				if(ans.equalsIgnoreCase("y")) i=0;
 				else if(!ans.equalsIgnoreCase("n")) {System.out.println("Invalid response. Expected 'Y' or 'N'.");}
@@ -243,6 +253,8 @@ public class Board{
   		//***************************** these need to be done
   		if(choice.equals("accu")) doAccusation(player);
   		if(choice.equals("suggest")) doSuggestion(player, tileName);
+  		drawTiles();
+  		
   	}
   	
   	private String getEndTurnChoice(String tileName) {
@@ -250,14 +262,14 @@ public class Board{
 		if(tileName.equals("Walkway")) {
 			while(ans != 1 && ans != 2) 
 				ans = inputNumber("1. Make an accusation. (1 per game):\n"
-					+ "2. End turn.");
+					+ "2. End turn:\n");
 			if(ans == 1) return "accu";
 		}
 		else {
 			while(ans != 1 && ans != 2 && ans != 3)
 				ans = inputNumber("1. Make an accusation. (1 per game):\n"
 						+ "2. Make a suggestion. (Using room '"+tileName+"'):\n"
-								+ "3. End turn:");
+								+ "3. End turn:\n");
 			if(ans == 1) return "accu";
 			if(ans == 2) return "suggest";
 		} 
@@ -265,19 +277,52 @@ public class Board{
   	}
   	
   	private void doSuggestion(Player player, String tileName) {
-  		System.out.println("Your hand is: \n");
-  		for(Card card: player.getHand())
-  			System.out.println("\t"+card.getType()+" "+card.getName());
+  		List<Card> cardList = new ArrayList<Card>();
+  		for(Card card: allCards) cardList.add(card);
+  		List<Card> roomCards = new ArrayList<Card>();
+  		List<Card> playerCards = new ArrayList<Card>();
+  		List<Card> weaponCards = new ArrayList<Card>();
+  		System.out.println("Your hand is: ");
+  		for(Card handCard: player.getHand()) { 
+  			System.out.println("\t"+handCard.getType()+": "+handCard.getName());
+  			for(int i=cardList.size()-1; i>0; i--) 
+  				if(cardList.get(i).getName().equals(handCard.getName())) 
+  					cardList.remove(i);
+  		}
+  		for(Card c: cardList) {
+			if(c.getType().equals("Room")) roomCards.add(c);
+			else if(c.getType().equals("Player")) playerCards.add(c);
+			else if(c.getType().equals("Weapon")) weaponCards.add(c);
+		}
+  		List<Card> guessedCards = new ArrayList<Card>();
+  		for(Card room: roomCards) 
+  			if(room.getName().equals(tileName)) 
+  				guessedCards.add(room);
+  		guessedCards.add(getGuess(playerCards, "character"));
+  		guessedCards.add(getGuess(weaponCards, "weapon"));
+  		for(int i=0;i<3;i++) System.out.println(guessedCards.get(i).getName());
   	}
   	
   	private void doAccusation(Player player) {
   		//************************
+  	}
+  	
+  	private Card getGuess(List<Card> cards, String type) {
+  		int count = 1;
+  		System.out.println();
+  		for(Card c: cards) {
+  			System.out.println(count++ +"\t"+c.getName());
+  		}
+  		int ans = inputNumber("Choose a "+type+" card: ");
+  		while(ans < 1 || ans > cards.size()) ans = inputNumber("Choose a valid "+type+" card: ");
+  		return cards.get(ans-1);
   	}
   
   public static void main(String[] args) {
 	  Tile[][] tiles = new Tile[24][25];
 	  List<Player> players = new ArrayList<Player>();
 	  List<Weapon> weapons = new ArrayList<Weapon>();
+	  List<Card> allCards = new ArrayList<Card>();
 	  List<Card> cards = new ArrayList<Card>();
 	  List<Card> murderCards = new ArrayList<Card>();
 	  List<Door> doors = new ArrayList<Door>();
@@ -347,8 +392,10 @@ public class Board{
 	  cards.add(new Card("Dining Room", "Room"));
 	  cards.add(new Card("Hall", "Room"));
 	  cards.add(new Card("Lounge", "Room"));
+	  
 	  for(Player p: players) cards.add(new Card(p.getName(), "Player"));
 	  for(Weapon w: weapons) cards.add(new Card(w.getName(), "Weapon"));
+	  for(Card c: cards) allCards.add(c);
 	  
 	  //murderCards
 	  //rooms are .get(0..8), players are .get(9..14), weapons are .get(15..20)
@@ -425,19 +472,20 @@ public class Board{
 		  players.get(selection-1).setPlayer(i);
 	  } 
 	  
-	  //not quite working
-	  int nextPlayer = (int)Math.random()*(nplayers);
-	  while(!players.get(nextPlayer).isPlaying()) nextPlayer++;
-	  for(int i=0; i<cards.size(); i++) {
-		  if(nextPlayer >= players.size()-1) nextPlayer = 0;
+	  Player[] playing = new Player[nplayers];
+	  int count = 0;
+	  for(int p=0; p<players.size()-1; p++) { if(players.get(p).isPlaying()) playing[count++] = players.get(p); }
+	  int nextPlayer = (int)Math.random()*nplayers+1;
+	  while(!cards.isEmpty()) {
+		  if(nextPlayer >= nplayers) nextPlayer = 1;
 		  int randomCard = (int)(Math.random()*(cards.size()-1));
-		  players.get(nextPlayer).addToHand(cards.get(randomCard));
-		  cards.get(randomCard).setPlayer(players.get(nextPlayer));
+		  playing[nextPlayer-1].addToHand(cards.get(randomCard));
+		  cards.get(randomCard).setPlayer(playing[nextPlayer]);
 		  cards.remove(randomCard);
-		  while(!players.get(nextPlayer).isPlaying()) nextPlayer++;
+		  nextPlayer++;
 	  }
 	  
-	  Board board = new Board(tiles, players, weapons, murderCards, doors);
+	  Board board = new Board(tiles, players, weapons, murderCards, doors, allCards);
 	  board.drawTiles();
 	  
 	  int playerTurn = 0;
