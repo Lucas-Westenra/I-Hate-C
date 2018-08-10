@@ -202,21 +202,29 @@ public class Board{
   		int y = current.getYPos();
   		String name = current.getName();
   		if(y>0)
-  			if(tiles[x][y-1].getName().equals(name)) return tiles[x][y-1];
+  			if(tiles[x][y-1].getName().equals(name) &&
+  					tiles[x][y-1].player == null) return tiles[x][y-1];
   		if(x<23)
-  			if(tiles[x+1][y].getName().equals(name)) return tiles[x+1][y];
+  			if(tiles[x+1][y].getName().equals(name) &&
+  					tiles[x+1][y].player == null) return tiles[x+1][y];
   		if(y<24)
-  			if(tiles[x][y+1].getName().equals(name)) return tiles[x][y+1];
+  			if(tiles[x][y+1].getName().equals(name) &&
+  					tiles[x][y+1].player == null) return tiles[x][y+1];
   		if(x>0)
-  			if(tiles[x-1][y].getName().equals(name)) return tiles[x-1][y];
+  			if(tiles[x-1][y].getName().equals(name) &&
+  					tiles[x-1][y].player == null) return tiles[x-1][y];
   		if(y>1)
-  			if(tiles[x][y-1].getName().equals(name)) return tiles[x][y-2];
+  			if(tiles[x][y-2].getName().equals(name) &&
+  					tiles[x][y-2].player == null) return tiles[x][y-2];
   		if(x<22)
-  			if(tiles[x+1][y].getName().equals(name)) return tiles[x+2][y];
+  			if(tiles[x+2][y].getName().equals(name) &&
+  					tiles[x+2][y].player == null) return tiles[x+2][y];
   		if(y<23)
-  			if(tiles[x][y+1].getName().equals(name)) return tiles[x][y+2];
+  			if(tiles[x][y+2].getName().equals(name) &&
+  					tiles[x][y+2].player == null) return tiles[x][y+2];
   		if(x>1)
-  			if(tiles[x-1][y].getName().equals(name)) return tiles[x-2][y];
+  			if(tiles[x-2][y].getName().equals(name) &&
+  					tiles[x-2][y].player == null) return tiles[x-2][y];
   		return null;
   	}
   	
@@ -273,16 +281,27 @@ public class Board{
 			}
   		}
   		moveTiles.clear();
-  		String choice = getEndTurnChoice(tileName);
+  		String choice;
+  		if(player.getPlaying())
+  			choice = getEndTurnChoice(player, tileName);
+  		else { 
+  			System.out.println("Accusation has already been made.");
+  			choice = "skip";
+  		}
   		
-  		//***************************** these need to be done
-  		if(choice.equals("accu")) doAccusation(player);
-  		if(choice.equals("suggest")) doSuggestion(player, tileName);
+  		if(choice.equals("accu")) {
+  			if(player.isPlaying()) doAccusation(player);
+  			else System.out.println(player.getName()+" has already make their accusation!\n"
+  					+ "Only one accusation may be made per game.");
+  		}
+  		if(choice.equals("suggest")) { 
+  			doSuggestion(player, tileName);	
+  		}
   		drawTiles();
   		
   	}
   	
-  	private String getEndTurnChoice(String tileName) {
+  	private String getEndTurnChoice(Player player, String tileName) {
   		int ans = 0;
 		if(tileName.equals("Walkway")) {
 			while(ans != 1 && ans != 2) 
@@ -334,17 +353,49 @@ public class Board{
 				w.getPosition().setWeapon(w);
   			}
   		}
-  		for(Player p: playing) {
-  			for(Card c: guessedCards) {
-  				if(p.getHand().contains(c)) {
-  
-  				}
+  		for(Card c: guessedCards) {
+  			boolean isFound = false;
+  			for(Player p: playing) {
+  				if(p != player)
+	  				if(p.getHand().contains(c)) {
+	  					System.out.println("Player "+p.getName()+" has the card "+c.getName()+"!");
+	  					isFound = true;
+	  				}
   			}
+  			if(!isFound) System.out.println("the "+c.getName()+" was not found card!");
   		}
   	}
   	
   	private void doAccusation(Player player) {
-  		//************************
+  		List<Card> roomCards = new ArrayList<Card>();
+  		List<Card> playerCards = new ArrayList<Card>();
+  		List<Card> weaponCards = new ArrayList<Card>();
+  		System.out.println("Your hand is: ");
+  		for(Card handCard: player.getHand()) { 
+  			System.out.println("\t"+handCard.getType()+": "+handCard.getName());
+  		}
+  		for(Card c: allCards) {
+			if(c.getType().equals("Room")) roomCards.add(c);
+			else if(c.getType().equals("Player")) playerCards.add(c);
+			else if(c.getType().equals("Weapon")) weaponCards.add(c);
+		}
+  		List<Card> guessedCards = new ArrayList<Card>();
+		guessedCards.add(getGuess(roomCards, "room"));
+  		guessedCards.add(getGuess(playerCards, "character"));
+  		guessedCards.add(getGuess(weaponCards, "weapon"));
+  		if(guessedCards.get(0) == murderCards.get(0) &&
+  				guessedCards.get(1) == murderCards.get(1) &&
+  				guessedCards.get(2) == murderCards.get(2)) {
+  			System.out.println(player.getName()+" has won!\n"
+  					+ "Game Over!");
+  			gameOver = true;
+  		}
+  		else {
+  			System.out.println(player.getName()+"'s guess was INCORRECT!\n"
+  					+player.getName()+" cannot make any more accusations!");
+  			player.setPlaying(false);
+  		}
+  		
   	}
   	
   	private Card getGuess(List<Card> cards, String type) {
@@ -512,17 +563,21 @@ public class Board{
 		  }
 		  players.get(selection-1).setPlayer(i);
 		  playing.add(players.get(selection-1));
-		  
 	  } 
 	  
 	  int nextPlayer = (int)Math.random()*nplayers+1;
 	  while(!cards.isEmpty()) {
-		  if(nextPlayer >= nplayers) nextPlayer = 1;
+		  if(nextPlayer > nplayers) nextPlayer = 1;
 		  int randomCard = (int)(Math.random()*(cards.size()-1));
 		  playing.get(nextPlayer-1).addToHand(cards.get(randomCard));
 		  cards.get(randomCard).setPlayer(playing.get(nextPlayer-1));
 		  cards.remove(randomCard);
 		  nextPlayer++;
+	  }
+	  for(Player p: players) {
+		  for(Card c: p.getHand()) {
+			  System.out.println(p.getName()+" has the card "+c.getName());
+		  }
 	  }
 	  
 	  Board board = new Board(tiles, players, weapons, murderCards, doors, allCards, playing);
