@@ -60,8 +60,22 @@ public class Board{
   {
     return playersTurn;
   }
+  
+  public List<Player> getPlayers()
+  {
+    return this.players;
+  }
+  
+  public List<Weapon> getWeapons()
+  {
+    return this.weapons;
+  }
 
-public String getBoardState(){
+  /**
+   * used for debugging, prints the board's characters out as a string
+   * @return string
+   */
+  public String getBoardState(){
 	  String state = "";
 	  for(int y=0;y<25;y++) {
 		  for(int x=0;x<24;x++) {
@@ -77,6 +91,12 @@ public String getBoardState(){
 	  return state;
   }
 	
+  /**
+   * takes a message and displays it, awaiting user input as the answer of the String
+   * user input must be an integer otherwise method asks again until an int is returned
+   * @param msg
+   * @return int
+   */
   private static int inputNumber(String msg) {
 		System.out.print(msg + " ");
 		while (true) {
@@ -91,6 +111,12 @@ public String getBoardState(){
 		}
 	}
   
+  /**
+   * takes a message and displays it, awaiting user input as the answer of the String
+   * user input must be a String otherwise method asks again until a String is returned
+   * @param msg
+   * @return String
+   */
   private static String inputString(String msg) {
 	  System.out.print(msg + " ");
 		while (true) {
@@ -104,6 +130,16 @@ public String getBoardState(){
 			}
 		}
   }
+  
+  /**
+   * moves param player in dir of param dir.
+   * Checks if player can move in direction dir before moving
+   * sets player position and tile positions as new location if successful
+   * returns false if player cannot move in direction dir
+   * @param player
+   * @param dir
+   * @return boolean
+   */
   	public boolean movePlayer(Player player, dir dir) {
 	  Tile current = player.getPosition();
 	  
@@ -185,11 +221,20 @@ public String getBoardState(){
   		
   		return false;
   	}
-   
+   /**
+    * returns a random number from 2-12 inclusive
+    * @return int
+    */
   	public static int rollDice() {
   		return (int)(Math.random()*10+2);
   	}
   	
+  	/**
+  	 * returns an inhabitable tile of the same name as current tile
+  	 * determines inhabitable time based on proximity and then direction from current clockwise
+  	 * @param current
+  	 * @return
+  	 */
   	public Tile checkDir(Tile current) {
   		int x = current.getXPos();
   		int y = current.getYPos();
@@ -221,6 +266,12 @@ public String getBoardState(){
   		return null;
   	}
   	
+  	/**
+  	 * loops for number retured by rollDice()
+  	 * provides information for player such as moves remaining
+  	 * prompts player to perform an action 
+  	 * handles the action
+  	 */
   	private void takeTurn(Player player) {
   		int moves = rollDice();
   		String tileName = "Walkway";
@@ -282,7 +333,7 @@ public String getBoardState(){
   			  		for(Card card: player.getHand())
   			  			System.out.println("\t"+card.getType()+": "+card.getName());
   				}
-  				else if(inp.equalsIgnoreCase("end")){
+  				else if(!player.getPosition().getName().equals("Walkway") && inp.equalsIgnoreCase("end")){
   					i=0;
   					noMove = false;
   				
@@ -324,6 +375,16 @@ public String getBoardState(){
   		
   	}
   	
+  	
+  	/**
+  	 * helper method called at end of takeTurn(Player p)
+  	 * prompts the player to select an action after turn is over
+  	 * options available are dependent on location of player
+  	 * returns the user's choice as a string
+  	 * @param player
+  	 * @param tileName
+  	 * @return String
+  	 */
   	public String getEndTurnChoice(Player player, String tileName) {
   		int ans = 0;
   		System.out.print("Would you like to...\n");
@@ -345,6 +406,15 @@ public String getBoardState(){
 		return "end";
   	}
   	
+  	/**
+  	 * prompts player to choose cards to suggest
+  	 * players suggested are moved to player
+  	 * weapons suggested are moved to player
+  	 * displays which cards are held if a player only holds 1 suggested card
+  	 * prompts other player to select a card to refute with if a player holds more than 1 suggested card
+  	 * @param player
+  	 * @param tileName
+  	 */
   	private void doSuggestion(Player player, String tileName) {
   		List<Card> roomCards = new ArrayList<Card>();
   		List<Card> playerCards = new ArrayList<Card>();
@@ -378,19 +448,44 @@ public String getBoardState(){
 				w.getPosition().setWeapon(w);
   			}
   		}
-  		for(Card c: guessedCards) {
-  			boolean isFound = false;
-  			for(Player p: playing) {
+  		
+  		List<Card> foundCards = new ArrayList<Card>();
+  		for(Player p: playing) {
+  			int count = 0;
+  			List<Card> cardList = new ArrayList<Card>();
+  			for(int cc=0; cc<3; cc++) {
   				if(p != player)
-	  				if(p.getHand().contains(c)) {
-	  					System.out.println("Player "+p.getName()+" has the card "+c.getName()+"!");
-	  					isFound = true;
+	  				if(p.getHand().contains(guessedCards.get(cc))) {
+	  					count++;
+	  					cardList.add(guessedCards.get(cc));
+	  					foundCards.add(guessedCards.get(cc));
 	  				}
   			}
-  			if(!isFound) System.out.println("the "+c.getName()+" was not found card!");
+  			if(count > 1) {
+				System.out.println(p.getName()+" Which card would you like to show?\n");
+				for(int i=0;i<count;i++) System.out.println(i+1+": "+cardList.get(i).getName());
+				int inp = (inputNumber("You may only show one: "));
+				while(inp<1 || inp>count) inp = inputNumber("Please select a valid number.");
+				System.out.println("Player "+p.getName()+" has the "+(cardList.get(inp-1).getName())+" card!");
+				for(int i=0;i<count;i++) {
+					if(i != inp-1) System.out.println("The "+(cardList.get(i).getName())+"card was not found!");
+				}
+			} 
+  			else if(count == 1)
+  				System.out.println("Player "+p.getName()+" has the "+cardList.get(0).getName()+" card!");
+  			}
+  		for(Card c: guessedCards) {
+				if(!foundCards.contains(c))
+					System.out.println("The "+c.getName()+" card was not found!");
   		}
   	}
   	
+  	/**
+  	 * prompts player to choose a room card, player card and weapon card to accuse with
+  	 * if any of these cards are not the actaul murder cards then the player is eliminated
+  	 * if all 3 accusation cards match the 3 murder cards the player wins and the game ends
+  	 * @param player
+  	 */
   	private void doAccusation(Player player) {
   		List<Card> roomCards = new ArrayList<Card>();
   		List<Card> playerCards = new ArrayList<Card>();
@@ -423,6 +518,14 @@ public String getBoardState(){
   		
   	}
   	
+  	/**
+  	 * helper method for doAccusation and doSuggestion
+  	 * prompts user to choose a card from a list
+  	 * returns chosen card
+  	 * @param cards
+  	 * @param type
+  	 * @return Card
+  	 */
   	private Card getGuess(List<Card> cards, String type) {
   		int count = 1;
   		System.out.println();
@@ -437,6 +540,11 @@ public String getBoardState(){
   		return cards.get(ans-1);
   	}
   	
+  	/**
+  	 * prints the key on the output
+  	 * the key indicates which char is used to represent which object
+  	 * @param line
+  	 */
   	public void printKey(int line) {
   		if(line == -1)System.out.print("\t\t\tKey:");
   		if(line == 0)System.out.print("\t\t\tS\t-\tMiss Scarlet");
@@ -461,7 +569,12 @@ public String getBoardState(){
   		if(line == 19)System.out.print("\t\t\tSpace\t-\tWalkway");
   	}
   
+  	/**
+  	 * initialize board state fully, create a new board object and call looping function to play game
+  	 * @param args
+  	 */
   public static void main(String[] args) {
+	  //initialize arrays needed to create new board object
 	  Tile[][] tiles = new Tile[24][25];
 	  List<Player> players = new ArrayList<Player>();
 	  List<Weapon> weapons = new ArrayList<Weapon>();
@@ -470,6 +583,7 @@ public String getBoardState(){
 	  List<Card> murderCards = new ArrayList<Card>();
 	  List<Door> doors = new ArrayList<Door>();
 	  
+	  //initialize tiles 
 	  for(int x=0; x<24; x++) {
 		  for(int y=0; y<25; y++) {
 			  if((x<9 && y==0)	||
@@ -536,7 +650,6 @@ public String getBoardState(){
 	  cards.add(new Card("Dining Room", "Room"));
 	  cards.add(new Card("Hall", "Room"));
 	  cards.add(new Card("Lounge", "Room"));
-	  
 	  for(Player p: players) cards.add(new Card(p.getName(), "Player"));
 	  for(Weapon w: weapons) cards.add(new Card(w.getName(), "Weapon"));
 	  for(Card c: cards) allCards.add(c);
@@ -572,12 +685,15 @@ public String getBoardState(){
 	  doors.add(new Door(new Tile("Walkway", 6, 16), new Tile("Dining Room", 6, 15)));
 	  doors.add(new Door(new Tile("Walkway", 8, 12), new Tile("Dining Room", 7, 12)));
 	  
+	  //set field to true in tiles to hold a door
 	  for(Door door: doors) {
 		  int x1 = door.t1.getXPos(); int y1 = door.t1.getYPos();
 		  int x2 = door.t2.getXPos(); int y2 = door.t2.getYPos();
 		  tiles[x1][y1].setDoor();
 		  tiles[x2][y2].setDoor();
 	  }
+	  
+	  //set field of players and weapons in tiles to hold the respective objects
 	  for(Player player: players) {
 		  tiles[player.getPosition().getXPos()][player.getPosition().getYPos()].setPlayer(player);
 	  }
@@ -586,6 +702,8 @@ public String getBoardState(){
 	  }
 	  
 	  List<Player> playing = new ArrayList<Player>();
+	  
+	  //startup options, choose characters and number of players
 	  System.out.println("\t\tCLUEDO");
 	  int nplayers = inputNumber("Enter the number of players that are playing: ");
 	  
@@ -620,6 +738,7 @@ public String getBoardState(){
 	  
 	  System.out.println();
 	  
+	  //add a random card to a looping player, looping until all remaining cards are given out
 	  int nextPlayer = (int)Math.random()*nplayers+1;
 	  while(!cards.isEmpty()) {
 		  if(nextPlayer > nplayers) nextPlayer = 1;
@@ -629,32 +748,38 @@ public String getBoardState(){
 		  cards.remove(randomCard);
 		  nextPlayer++;
 	  }
-	  for(Player p: players) {
-		  for(Card c: p.getHand()) {
-			  System.out.println(p.getName()+" has the card "+c.getName());
-		  }
-		  if(p.isPlaying()) {
-			  System.out.println();
-		  }
-		  
-	  }
-	  for(Card c: murderCards) {
-		  System.out.println(c.getName());
-	  }
 	  
 	  Board board = new Board(tiles, players, weapons, murderCards, doors, allCards, playing);
 	  board.drawTiles();
 	  
+	  board.runGame();
+	  
+  }
+  
+  /**
+   * Returns boolean for debugging 
+   * returns true if game won by player
+   * returns false if no player won the game
+   * contains the main gameplay loop, breaking if gameOver
+   * @return boolean
+   */
+  public boolean runGame() {
 	  while(!gameOver) {
+		  int count = 0;
+		  for(Player pl: playing) if(!pl.getPlaying()) count++;
+		  if(count == playing.size()) { 
+			  System.out.println("Every Player has gotten their accusation wrong!\n"
+			  		+ "Game Over!");
+			  return false;
+		  }
 		  for(Player p: playing) {
 			  if(gameOver) {
-				  break;
+				  return true;
 			  }
-			  board.takeTurn(p);
+			  takeTurn(p);
 		  }
 	  }
-	  
-	  
+	  return true;
   }
   
   private void drawTiles() {
@@ -719,11 +844,10 @@ public String getBoardState(){
 	  System.out.print("\n\t\t\t   HALL\n");
   }
   
-  private void debugSuggestion(Player player, Card roomCard, Card playerCard, Card weaponCard) {
+  public void debugSuggestion(Player player, Player pl, Weapon wep) {
 		List<Card> roomCards = new ArrayList<Card>();
 		List<Card> playerCards = new ArrayList<Card>();
 		List<Card> weaponCards = new ArrayList<Card>();
-		System.out.println("Your hand is: ");
 		for(Card c: allCards) {
 			if(c.getType().equals("Room")) roomCards.add(c);
 			else if(c.getType().equals("Player")) playerCards.add(c);
@@ -731,60 +855,47 @@ public String getBoardState(){
 		}
 
 		for(Player p: players) {
-			if(p.getName().equals(playerCard.getName()) && !playerCard.getName().equals(player.getName())) {
+			if(p.getName().equals(pl.getName()) && !pl.getName().equals(player.getName())) {
 	  			p.getPosition().setPlayer(null);
 				p.setPosition(checkDir(player.getPosition()));
 				p.getPosition().setPlayer(p);
 			}
 		}
 		for(Weapon w: weapons) {
-			if(w.getName().equals(weaponCard.getName())) {
+			if(w.getName().equals(wep.getName())) {
 				w.getPosition().setWeapon(null);
 				w.setPosition(checkDir(player.getPosition()));
 				w.getPosition().setWeapon(w);
 			}
 		}
-//		for(Card c: guessedCards) {
-//			boolean isFound = false;
-//			for(Player p: playing) {
-//				if(p != player)
-//	  				if(p.getHand().contains(c)) {
-//	  					System.out.println("Player "+p.getName()+" has the card "+c.getName()+"!");
-//	  					isFound = true;
-//	  				}
-//			}
-//			if(!isFound) System.out.println("the "+c.getName()+" was not found card!");
-//		}
 	}
 	
-	private void debugAccusation(Player player) {
+	public boolean debugAccusation(Player player, List<Card> murderC) {
 		List<Card> roomCards = new ArrayList<Card>();
 		List<Card> playerCards = new ArrayList<Card>();
 		List<Card> weaponCards = new ArrayList<Card>();
-		System.out.println("Your hand is: ");
-		for(Card handCard: player.getHand()) { 
-			System.out.println("\t"+handCard.getType()+": "+handCard.getName());
-		}
 		for(Card c: allCards) {
 			if(c.getType().equals("Room")) roomCards.add(c);
 			else if(c.getType().equals("Player")) playerCards.add(c);
 			else if(c.getType().equals("Weapon")) weaponCards.add(c);
 		}
 		List<Card> guessedCards = new ArrayList<Card>();
-		guessedCards.add(getGuess(roomCards, "room"));
-		guessedCards.add(getGuess(playerCards, "character"));
-		guessedCards.add(getGuess(weaponCards, "weapon"));
+		guessedCards.add(murderC.get(0));
+		guessedCards.add(murderC.get(1));
+		guessedCards.add(murderC.get(2));
 		if(guessedCards.get(0) == murderCards.get(0) &&
 				guessedCards.get(1) == murderCards.get(1) &&
 				guessedCards.get(2) == murderCards.get(2)) {
-			System.out.println(player.getName()+"'s accusation was CORRECT and has won the game!\n");
 			gameOver = true;
+			return true;
 		}
 		else {
-			System.out.println(player.getName()+"'s accusation was INCORRECT!\n"
-					+player.getName()+" cannot make any more accusations!\n");
-			
 			player.setPlaying(false);
 		}
+		return false;
+	}
+	
+	public List<Card> getMurderCards(){
+		return this.murderCards;
 	}
 }
