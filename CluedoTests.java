@@ -13,7 +13,7 @@ public class CluedoTests {
 	public void testInvalidMoveThroughWall() {
 		Board board = initializeBoard(5);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			board.movePlayer(p, Board.dir.NORTH);
 			String oldState = board.getBoardState();
 			assertFalse(board.movePlayer(p, Board.dir.WEST));
@@ -28,7 +28,7 @@ public class CluedoTests {
 	public void testValidMoveThroughDoor() {
 		Board board = initializeBoard(5);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
 			board.movePlayer(p, Board.dir.WEST);
 			String oldState = board.getBoardState();
@@ -46,7 +46,7 @@ public class CluedoTests {
 	public void testInvalidMoveOffMap() {
 		Board board = initializeBoard(5);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			String oldState = board.getBoardState();
 			assertFalse(board.movePlayer(p, Board.dir.SOUTH));
 			String newState = board.getBoardState();
@@ -60,7 +60,7 @@ public class CluedoTests {
 	public void testInvalidMoveOntoInaccessible() {
 		Board board = initializeBoard(5);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			String oldState = board.getBoardState();
 			assertFalse(board.movePlayer(p, Board.dir.EAST));
 			assertFalse(board.movePlayer(p, Board.dir.WEST));
@@ -75,7 +75,7 @@ public class CluedoTests {
 	public void testInvalidMoveIntoPlayer() {
 		Board board = initializeBoard(5);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			for(int i=0; i<7; i++) board.movePlayer(p, Board.dir.NORTH);
 			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.WEST);
 			String oldState = board.getBoardState();
@@ -91,7 +91,7 @@ public class CluedoTests {
 	public void testValidMoveIntoWeapon() {
 		Board board = initializeBoard(5);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
 			board.movePlayer(p, Board.dir.WEST);
 			for(int i=0;i<4;i++) board.movePlayer(p, Board.dir.SOUTH);
@@ -109,7 +109,7 @@ public class CluedoTests {
 	public void testInvalidMoveOntoRepeatTile() {
 		Board board = initializeBoard(5);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			board.movePlayer(p, Board.dir.NORTH);
 			String oldState = board.getBoardState();
 			assertFalse(board.movePlayer(p, Board.dir.SOUTH));
@@ -124,7 +124,7 @@ public class CluedoTests {
 	public void testValidHandsize_1() {
 		Board board = initializeBoard(3);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			assertEquals(6, p.getHand().size());
 		} catch (NullPointerException e) {
 			System.out.println("There was an error. NullPointer Exception. "+e);
@@ -135,7 +135,7 @@ public class CluedoTests {
 	public void testValidHandsize_2() {
 		Board board = initializeBoard(6);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			assertEquals(3, p.getHand().size());
 		} catch (NullPointerException e) {
 			System.out.println("There was an error. NullPointer Exception. "+e);
@@ -146,7 +146,7 @@ public class CluedoTests {
 	public void testCannotMove() {
 		Board board = initializeBoard(3);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			board.movePlayer(p, Board.dir.NORTH);
 			board.movePlayer(p, Board.dir.NORTH);
 			board.movePlayer(p, Board.dir.EAST);
@@ -179,7 +179,7 @@ public class CluedoTests {
 	public void testSuggestionMovesPlayer() {
 		Board board = initializeBoard(3);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
 			board.movePlayer(p, Board.dir.WEST);
 			String oldState = board.getBoardState();
@@ -199,7 +199,7 @@ public class CluedoTests {
 	public void testSuggestionDoesntStackPlayers() {
 		Board board = initializeBoard(3);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
 			board.movePlayer(p, Board.dir.WEST);
 			String oldState = board.getBoardState();
@@ -220,7 +220,7 @@ public class CluedoTests {
 	public void testSuggestionDoesntMoveSelf() {
 		Board board = initializeBoard(3);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
 			board.movePlayer(p, Board.dir.WEST);
 			String oldState = board.getBoardState();
@@ -239,7 +239,7 @@ public class CluedoTests {
 		Board board = initializeBoard(3);
 		try {
 			List<Weapon> weps = board.getWeapons();
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
 			board.movePlayer(p, Board.dir.WEST);
 			assertTrue(board.movePlayer(p, Board.dir.SOUTH));
@@ -258,7 +258,7 @@ public class CluedoTests {
 		Board board = initializeBoard(3);
 		try {
 			List<Weapon> weps = board.getWeapons();
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
 			board.movePlayer(p, Board.dir.WEST);
 			assertTrue(board.movePlayer(p, Board.dir.SOUTH));
@@ -276,7 +276,7 @@ public class CluedoTests {
 	public void testAccusationWin() {
 		Board board = initializeBoard(3);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			List<Card> mc = board.getMurderCards();
 			assertTrue(board.debugAccusation(p, mc));
 		} catch (NullPointerException e) {
@@ -288,7 +288,7 @@ public class CluedoTests {
 	public void testGameOverWin() {
 		Board board = initializeBoard(3);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			List<Card> mc = board.getMurderCards();
 			assertTrue(board.debugAccusation(p, mc));
 			assertTrue(board.gameOver);
@@ -301,7 +301,7 @@ public class CluedoTests {
 	public void testAccusationLoss() {
 		Board board = initializeBoard(3);
 		try {
-			Player p = board.getPlayersTurn();
+			Player p = board.getPlayers().get(0);
 			List<Card> mc = new ArrayList<Card>();
 			for(int i=0;i<3;i++) mc.add(new Card("name", "player"));
 			assertFalse(board.debugAccusation(p, mc));
