@@ -104,7 +104,6 @@ public String getBoardState(){
 			}
 		}
   }
-  
   	public boolean movePlayer(Player player, dir dir) {
 	  Tile current = player.getPosition();
 	  
@@ -325,7 +324,7 @@ public String getBoardState(){
   		
   	}
   	
-  	private String getEndTurnChoice(Player player, String tileName) {
+  	public String getEndTurnChoice(Player player, String tileName) {
   		int ans = 0;
   		System.out.print("Would you like to...\n");
 		if(tileName.equals("Walkway")) {
@@ -675,13 +674,9 @@ public String getBoardState(){
 		  else System.out.print("\t\t"+ '\u2588');
 		  for(int x=0; x<24; x++) {
 			  String roomName = tiles[x][y].getName();
-			  for(Tile t: moveTiles) {
-				  if(t.equals(tiles[x][y])) {
-					  System.out.print("o");
-				  }
-			  }
 			  
 			  if(tiles[x][y].player != null) System.out.printf("%s", tiles[x][y].player.getPiece());
+			  else if(moveTiles.contains(tiles[x][y])) System.out.print("o");
 			  else if(tiles[x][y].isDoor) {
 				  for(Door d: doors) {
 					  if(d.t2.getXPos()==x && d.t2.getYPos()==y) {
@@ -723,4 +718,73 @@ public String getBoardState(){
 	  
 	  System.out.print("\n\t\t\t   HALL\n");
   }
+  
+  private void debugSuggestion(Player player, Card roomCard, Card playerCard, Card weaponCard) {
+		List<Card> roomCards = new ArrayList<Card>();
+		List<Card> playerCards = new ArrayList<Card>();
+		List<Card> weaponCards = new ArrayList<Card>();
+		System.out.println("Your hand is: ");
+		for(Card c: allCards) {
+			if(c.getType().equals("Room")) roomCards.add(c);
+			else if(c.getType().equals("Player")) playerCards.add(c);
+			else if(c.getType().equals("Weapon")) weaponCards.add(c);
+		}
+
+		for(Player p: players) {
+			if(p.getName().equals(playerCard.getName()) && !playerCard.getName().equals(player.getName())) {
+	  			p.getPosition().setPlayer(null);
+				p.setPosition(checkDir(player.getPosition()));
+				p.getPosition().setPlayer(p);
+			}
+		}
+		for(Weapon w: weapons) {
+			if(w.getName().equals(weaponCard.getName())) {
+				w.getPosition().setWeapon(null);
+				w.setPosition(checkDir(player.getPosition()));
+				w.getPosition().setWeapon(w);
+			}
+		}
+//		for(Card c: guessedCards) {
+//			boolean isFound = false;
+//			for(Player p: playing) {
+//				if(p != player)
+//	  				if(p.getHand().contains(c)) {
+//	  					System.out.println("Player "+p.getName()+" has the card "+c.getName()+"!");
+//	  					isFound = true;
+//	  				}
+//			}
+//			if(!isFound) System.out.println("the "+c.getName()+" was not found card!");
+//		}
+	}
+	
+	private void debugAccusation(Player player) {
+		List<Card> roomCards = new ArrayList<Card>();
+		List<Card> playerCards = new ArrayList<Card>();
+		List<Card> weaponCards = new ArrayList<Card>();
+		System.out.println("Your hand is: ");
+		for(Card handCard: player.getHand()) { 
+			System.out.println("\t"+handCard.getType()+": "+handCard.getName());
+		}
+		for(Card c: allCards) {
+			if(c.getType().equals("Room")) roomCards.add(c);
+			else if(c.getType().equals("Player")) playerCards.add(c);
+			else if(c.getType().equals("Weapon")) weaponCards.add(c);
+		}
+		List<Card> guessedCards = new ArrayList<Card>();
+		guessedCards.add(getGuess(roomCards, "room"));
+		guessedCards.add(getGuess(playerCards, "character"));
+		guessedCards.add(getGuess(weaponCards, "weapon"));
+		if(guessedCards.get(0) == murderCards.get(0) &&
+				guessedCards.get(1) == murderCards.get(1) &&
+				guessedCards.get(2) == murderCards.get(2)) {
+			System.out.println(player.getName()+"'s accusation was CORRECT and has won the game!\n");
+			gameOver = true;
+		}
+		else {
+			System.out.println(player.getName()+"'s accusation was INCORRECT!\n"
+					+player.getName()+" cannot make any more accusations!\n");
+			
+			player.setPlaying(false);
+		}
+	}
 }
