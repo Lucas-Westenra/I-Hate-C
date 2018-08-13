@@ -1,3 +1,4 @@
+
 import java.io.*;
 import java.util.*;
 
@@ -40,6 +41,18 @@ public class Board{
 		this.weapons = weapons;
 		this.players = players;
 		this.playing = playing;
+	}
+	
+	public List<Player> getPlayers(){
+		return this.players;
+	}
+	
+	public List<Weapon> getWeapons(){
+		return this.weapons;
+	}
+	
+	public List<Card> getMurderCards(){
+		return this.murderCards;
 	}
 
 	/**
