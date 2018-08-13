@@ -60,11 +60,6 @@ public class Board{
   {
     return playersTurn;
   }
-	
-  public Weapon getWeapon(int index){
-    Weapon aWeapon = weapons.get(index);
-    return aWeapon;
-  }
 
   private static int inputNumber(String msg) {
 		System.out.print(msg + " ");
@@ -94,12 +89,12 @@ public class Board{
 		}
   }
   
-  	private boolean movePlayer(Player player, dir dir) {
+  	public boolean movePlayer(Player player, dir dir) {
 	  Tile current = player.getPosition();
-	  moveTiles.add(current);
+	  
 	  int x = current.getXPos();
 	  int y = current.getYPos();
-	  Tile next;
+	  Tile next=null;
 	  switch(dir){
 		  case NORTH:
 			  if(y-1<0)return false;
@@ -110,15 +105,8 @@ public class Board{
 					  return false;
 				  }
 			  }
-			  
-			  if(canMove(current, next)) {
-				  moveTiles.add(next);
-				  next.setPlayer(player);
-				  current.setPlayer(null);
-				  player.setPosition(next);
-				  return true;
-			  }
 			  break;
+			  
 		  case SOUTH:
 			  if(y+1>24)return false;
 			  next = tiles[x][y+1];
@@ -128,15 +116,8 @@ public class Board{
 					  return false;
 				  }
 			  }
-			  
-			  if(canMove(current, next)) {
-				  moveTiles.add(next);
-				  next.setPlayer(player);
-				  current.setPlayer(null);
-				  player.setPosition(next);
-				  return true;
-			  }
 			  break;
+			  
 		  case EAST:
 			  if(x+1>23)return false;
 			  next = tiles[x+1][y];
@@ -146,15 +127,8 @@ public class Board{
 					  return false;
 				  }
 			  }
-			  
-			  if(canMove(current, next)) {
-				  moveTiles.add(next);
-				  next.setPlayer(player);
-				  current.setPlayer(null);
-				  player.setPosition(next);
-				  return true;
-			  }
 			  break;
+			  
 		  case WEST:
 			  if(x-1<0)return false;
 			  next = tiles[x-1][y];
@@ -164,15 +138,14 @@ public class Board{
 					  return false;
 				  }
 			  }
-			  
-			  if(canMove(current, next)) {
-				  moveTiles.add(next);
-				  next.setPlayer(player);
-				  current.setPlayer(null);
-				  player.setPosition(next);
-				  return true;
-			  }
 			  break;
+	  }
+	  if(canMove(current, next)) {
+		  next.setPlayer(player);
+		  current.setPlayer(null);
+		  player.setPosition(next);
+		  moveTiles.add(current);
+		  return true;
 	  }
 	  return false;
 	}
@@ -182,6 +155,11 @@ public class Board{
   		if(next.player != null) {
   			return false;
   		}
+  		for(Tile t: moveTiles) {
+  			if(t.equals(next)) {
+  				return false;
+  			}
+  		}
   		if(current.getName().equals(next.getName())) { //Allows movement within the same room
   			return true;
   		}
@@ -189,12 +167,12 @@ public class Board{
   		if(current.isDoor && next.isDoor) {
 				return true;
 		}
+  		
   		return false;
   	}
    
   	public static int rollDice() {
-  		return 40;
-  		//return (int)(Math.random()*10+2);
+  		return (int)(Math.random()*10+2);
   	}
   	
   	public Tile checkDir(Tile current) {
@@ -231,13 +209,38 @@ public class Board{
   	private void takeTurn(Player player) {
   		int moves = rollDice();
   		String tileName = "Walkway";
+  		System.out.println("It's " + player.getName() + "'s turn!");
   		System.out.println(player.getName() +" rolled a "+moves+"!");
+  		
 
   		for(int i=moves; i>0; i--) {
 			boolean noMove = true;
+			boolean deadEnd = false;
 			while(noMove) {
+				int playerX = player.getPosition().getXPos();
+				int playerY = player.getPosition().getYPos();
+				if(playerX+1 > 23 || !canMove(player.getPosition(), tiles[playerX+1][playerY])) {
+					if(playerX-1 < 0 || !canMove(player.getPosition(), tiles[playerX-1][playerY])) {
+						if(playerY+1 >24 || !canMove(player.getPosition(), tiles[playerX][playerY+1])) {
+							if(playerY-1 < 0 || !canMove(player.getPosition(), tiles[playerX][playerY-1])) {
+								i=0;
+								noMove=false;
+								deadEnd = true;
+								break;
+							}
+						}
+					}
+				}
+
 				System.out.println(player.getName() + " has " + i + " moves left.");
-  				String inp = inputString("Enter a direction (W/A/S/D/Hand): ");
+  				String inp;
+  				
+  				if(!player.getPosition().getName().equals("Walkway")) {
+  					inp = inputString("Enter a direction (W/A/S/D/Hand/End): ");
+  				}
+  				else {
+  					inp = inputString("Enter a direction (W/A/S/D/Hand): ");
+  				}
 				
   				if(inp.equalsIgnoreCase("w")) {
   					if(movePlayer(player, dir.NORTH)) {
@@ -264,21 +267,24 @@ public class Board{
   			  		for(Card card: player.getHand())
   			  			System.out.println("\t"+card.getType()+": "+card.getName());
   				}
+  				else if(inp.equalsIgnoreCase("end")){
+  					i=0;
+  					noMove = false;
+  				
+  				}	
   				else {
   					System.out.println("Enter W/A/S/D/Hand");
   				}
   				
   			}
-  				
-  			drawTiles();	
+			if(deadEnd) {
+  				System.out.print("You have moved into a dead end, you turn is over!\n");
+  			}
+			else {
+  				drawTiles();
+  			}
   			tileName = player.getPosition().getName();
-  			if(!tileName.equals("Walkway")) {
-  				String ans = "";
-				while(!ans.equalsIgnoreCase("y") && !ans.equalsIgnoreCase("n"))
-					ans = inputString("You are in the "+tileName+". Do you want to end your turn? (Y/N)");
-				if(ans.equalsIgnoreCase("y")) i=0;
-				else if(!ans.equalsIgnoreCase("n")) {System.out.println("Invalid response. Expected 'Y' or 'N'.");}
-			}
+  			
   		}
   		moveTiles.clear();
   		String choice;
@@ -297,25 +303,29 @@ public class Board{
   		if(choice.equals("suggest")) { 
   			doSuggestion(player, tileName);	
   		}
-  		drawTiles();
+  		if(!gameOver) {
+  			drawTiles();
+  		}
   		
   	}
   	
   	private String getEndTurnChoice(Player player, String tileName) {
   		int ans = 0;
+  		System.out.print("Would you like to...\n");
 		if(tileName.equals("Walkway")) {
 			while(ans != 1 && ans != 2) 
-				ans = inputNumber("1. Make an accusation. (1 per game):\n"
-					+ "2. End turn:\n");
+				ans = inputNumber("1. Make an accusation. (1 per game)\n"
+					+ "2. End turn.\n" + "Enter choice (1/2): ");
 			if(ans == 1) return "accu";
 		}
 		else {
 			while(ans != 1 && ans != 2 && ans != 3)
-				ans = inputNumber("1. Make an accusation. (1 per game):\n"
-						+ "2. Make a suggestion. (Using room '"+tileName+"'):\n"
-								+ "3. End turn:\n");
-			if(ans == 1) return "accu";
-			if(ans == 2) return "suggest";
+				ans = inputNumber("1. Make a suggestion. (Using room '" +tileName+"')\n"
+						+ "2. Make an accusation. (1 per game)\n"
+								+ "3. End turn\n" + "Enter choice (1/2/3): ");
+			if(ans == 1) return "suggest";
+			if(ans == 2) return "accu";
+			
 		} 
 		return "end";
   	}
@@ -386,13 +396,13 @@ public class Board{
   		if(guessedCards.get(0) == murderCards.get(0) &&
   				guessedCards.get(1) == murderCards.get(1) &&
   				guessedCards.get(2) == murderCards.get(2)) {
-  			System.out.println(player.getName()+" has won!\n"
-  					+ "Game Over!");
+  			System.out.println(player.getName()+"'s accusation was CORRECT and has won the game!\n");
   			gameOver = true;
   		}
   		else {
-  			System.out.println(player.getName()+"'s guess was INCORRECT!\n"
-  					+player.getName()+" cannot make any more accusations!");
+  			System.out.println(player.getName()+"'s accusation was INCORRECT!\n"
+  					+player.getName()+" cannot make any more accusations!\n");
+  			
   			player.setPlaying(false);
   		}
   		
@@ -406,7 +416,34 @@ public class Board{
   		}
   		int ans = inputNumber("Choose a "+type+" card: ");
   		while(ans < 1 || ans > cards.size()) ans = inputNumber("Choose a valid "+type+" card: ");
+  		
+  		System.out.println();
+  		
   		return cards.get(ans-1);
+  	}
+  	
+  	public void printKey(int line) {
+  		if(line == -1)System.out.print("\t\t\tKey:");
+  		if(line == 0)System.out.print("\t\t\tS\t-\tMiss Scarlet");
+  		if(line == 1)System.out.print("\t\t\tM\t-\tColonel Mustard");
+  		if(line == 2)System.out.print("\t\t\tW\t-\tMrs. White");
+  		if(line == 3)System.out.print("\t\tG\t-\tMr. Green");
+  		if(line == 4)System.out.print("\t\t\tP\t-\tMrs. Peacock");
+  		if(line == 5)System.out.print("\t\t\tL\t-\tProfessor Plum");
+  		
+  		if(line == 7)System.out.print("\t\t\tc\t-\tCandlestick");
+  		if(line == 8)System.out.print("\t\t\td\t-\tDagger");
+  		if(line == 9)System.out.print("\t\t\tl\t-\tLead Pipe");
+  		if(line == 10)System.out.print("\t\tv\t-\tRevolver");
+  		if(line == 11)System.out.print("\t\tr\t-\tRope");
+  		if(line == 12)System.out.print("\t\t\ts\t-\tSpanner");
+  		
+  		if(line == 14)System.out.print("\t\t\t\u2588\t-\tInacessable Position");
+  		if(line == 15)System.out.print("\t\t.\t-\tRoom");
+  		if(line == 16)System.out.print("\t\t\t-\t-\tVertical Door Entrance");
+  		if(line == 17)System.out.print("\t\t\t|\t-\tHorizontal Door Entrance");
+  		if(line == 18)System.out.print("\t\t\to\t-\tPlayer has already moved to this position during turn");
+  		if(line == 19)System.out.print("\t\t\tSpace\t-\tWalkway");
   	}
   
   public static void main(String[] args) {
@@ -425,7 +462,8 @@ public class Board{
 					  (x>14 && y==0)	||
 					  (x==6 && y==1)	||
 					  (x==17 && y==1)	||
-					  ((x==0 || x==23) && (y==5 || y==7))	||
+					  ((x==0) && (y==6 || y==8))	||
+					  ((x == 23) && (y==5 || y==7))	||
 					  (x>9 && x<15 && y>9 && y<17)	||
 					  (x==23 && y>12 && y<15)	||
 					  (x==0 && (y==16 || y==18))	||
@@ -490,9 +528,9 @@ public class Board{
 	  
 	  //murderCards
 	  //rooms are .get(0..8), players are .get(9..14), weapons are .get(15..20)
-	  int roomNum = (int)Math.random()*9;
-	  int personNum = (int)Math.random()*6 + 9;
-	  int weaponNum = (int)Math.random()*6 + 15;
+	  int roomNum = (int)(Math.random()*9);
+	  int personNum = (int)(Math.random()*6) + 9;
+	  int weaponNum = (int)(Math.random()*6) + 15;
 	  murderCards.add(cards.get(roomNum));
 	  murderCards.add(cards.get(personNum));
 	  murderCards.add(cards.get(weaponNum));
@@ -501,7 +539,7 @@ public class Board{
 	  cards.remove(roomNum);
 	  
 	  //Doors
-	  doors.add(new Door(new Tile("Walkway", 4, 6), new Tile("Kitchen", 4, 7)));
+	  doors.add(new Door(new Tile("Walkway", 4, 5), new Tile("Kitchen", 4, 6)));
 	  doors.add(new Door(new Tile("Walkway", 7, 5), new Tile("Ball Room", 8, 5)));
 	  doors.add(new Door(new Tile("Walkway", 9, 8), new Tile("Ball Room", 9, 7)));
 	  doors.add(new Door(new Tile("Walkway", 14, 8), new Tile("Ball Room", 14, 7)));
@@ -565,6 +603,8 @@ public class Board{
 		  playing.add(players.get(selection-1));
 	  } 
 	  
+	  System.out.println();
+	  
 	  int nextPlayer = (int)Math.random()*nplayers+1;
 	  while(!cards.isEmpty()) {
 		  if(nextPlayer > nplayers) nextPlayer = 1;
@@ -578,6 +618,13 @@ public class Board{
 		  for(Card c: p.getHand()) {
 			  System.out.println(p.getName()+" has the card "+c.getName());
 		  }
+		  if(p.isPlaying()) {
+			  System.out.println();
+		  }
+		  
+	  }
+	  for(Card c: murderCards) {
+		  System.out.println(c.getName());
 	  }
 	  
 	  Board board = new Board(tiles, players, weapons, murderCards, doors, allCards, playing);
@@ -585,6 +632,9 @@ public class Board{
 	  
 	  while(!gameOver) {
 		  for(Player p: playing) {
+			  if(gameOver) {
+				  break;
+			  }
 			  board.takeTurn(p);
 		  }
 	  }
@@ -599,26 +649,45 @@ public class Board{
 	  for(int i = 0; i<=25; i++) {
 		  System.out.print('\u2588');
 	  }
-
+	  printKey(-1);
 	  
 	  for(int y=0; y<25; y++) {
 		  System.out.println();
-		  if(y==3) System.out.print("KITCHEN\t\t"+'\u2588');
-		  else if(y==13) System.out.print("DINING ROOM\t"+'\u2588');
-		  else if(y==22) System.out.print("LOUNGE\t\t"+'\u2588');
+		  if(y==3) System.out.print("\tKITCHEN "+'\u2588');
+		  else if(y==13) System.out.print("    DINING ROOM "+'\u2588');
+		  else if(y==22) System.out.print("\t LOUNGE "+'\u2588');
 		  else System.out.print("\t\t"+ '\u2588');
 		  for(int x=0; x<24; x++) {
 			  String roomName = tiles[x][y].getName();
+			  for(Tile t: moveTiles) {
+				  if(t.equals(tiles[x][y])) {
+					  System.out.print("o");
+				  }
+			  }
+			  
 			  if(tiles[x][y].player != null) System.out.printf("%s", tiles[x][y].player.getPiece());
 			  else if(tiles[x][y].isDoor) {
-				  System.out.printf("%s", "|");
+				  for(Door d: doors) {
+					  if(d.t2.getXPos()==x && d.t2.getYPos()==y) {
+						  if(d.t1.getXPos() == d.t2.getXPos()-1 || d.t1.getXPos() == d.t2.getXPos()+1) {
+							  System.out.print("|");
+						  }
+						  else {
+							  System.out.print("-");  
+						  }
+					  }
+					  if(d.t1.getXPos()==x && d.t1.getYPos()==y) {
+						  System.out.print(" ");
+					  }
+				  }
+				  
 			  }
 			  else if(tiles[x][y].weapon != null) System.out.printf("%s", tiles[x][y].weapon.getPiece());
 			  else if(roomName.equals("Inaccessible"))
 				  System.out.printf("%s", '\u2588');
 			  else if(!roomName.equals("Walkway"))
 				  System.out.printf("%s", '.');
-			  else
+			  else if(!moveTiles.contains(tiles[x][y]))
 				  System.out.printf("%s", ' ');
 			  
 		  }
@@ -628,6 +697,8 @@ public class Board{
 		  if(y==11) System.out.print("   ROOM");
 		  if(y==15) System.out.print(" LIBRARY");
 		  if(y==23) System.out.print(" STUDY");
+		  
+		  printKey(y);
 	  }
 	  System.out.printf("%s", "\n\t\t");
 	  for(int i = 0; i<=25; i++) {
