@@ -161,6 +161,170 @@ public class CluedoTests {
 		}
 	}
 	
+	@Test
+	public void testDiceRoll() {
+		Board board = initializeBoard(3);
+		try {
+			for(int i=0;i<100;i++) {
+				int roll = board.rollDice();
+				assert(roll >= 2 && roll <=12);
+			}
+			
+		} catch (NullPointerException e) {
+			System.out.println("There was an error. NullPointer Exception. "+e);
+		}
+	}
+	
+	@Test
+	public void testSuggestionMovesPlayer() {
+		Board board = initializeBoard(3);
+		try {
+			Player p = board.getPlayersTurn();
+			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
+			board.movePlayer(p, Board.dir.WEST);
+			String oldState = board.getBoardState();
+			assertTrue(board.movePlayer(p, Board.dir.SOUTH));
+			String newState = board.getBoardState();
+			assertFalse(oldState.equals(newState));
+			board.debugSuggestion(p, board.getPlayers().get(3), board.getWeapons().get(3));
+			assertFalse(board.movePlayer(p, Board.dir.SOUTH));
+			assertTrue(board.getPlayers().get(3).getPosition().getName().equals("Lounge"));
+			
+		} catch (NullPointerException e) {
+			System.out.println("There was an error. NullPointer Exception. "+e);
+		}
+	}
+	
+	@Test
+	public void testSuggestionDoesntStackPlayers() {
+		Board board = initializeBoard(3);
+		try {
+			Player p = board.getPlayersTurn();
+			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
+			board.movePlayer(p, Board.dir.WEST);
+			String oldState = board.getBoardState();
+			assertTrue(board.movePlayer(p, Board.dir.SOUTH));
+			String newState = board.getBoardState();
+			assertFalse(oldState.equals(newState));
+			board.debugSuggestion(p, board.getPlayers().get(3), board.getWeapons().get(3));
+			board.debugSuggestion(p, board.getPlayers().get(4), board.getWeapons().get(4));
+			assertFalse(board.movePlayer(p, Board.dir.WEST));
+			assertTrue(board.getPlayers().get(4).getPosition().getName().equals("Lounge"));
+			
+		} catch (NullPointerException e) {
+			System.out.println("There was an error. NullPointer Exception. "+e);
+		}
+	}
+	
+	@Test
+	public void testSuggestionDoesntMoveSelf() {
+		Board board = initializeBoard(3);
+		try {
+			Player p = board.getPlayersTurn();
+			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
+			board.movePlayer(p, Board.dir.WEST);
+			String oldState = board.getBoardState();
+			assertTrue(board.movePlayer(p, Board.dir.SOUTH));
+			String newState = board.getBoardState();
+			assertFalse(oldState.equals(newState));
+			board.debugSuggestion(p, board.getPlayers().get(0), board.getWeapons().get(3));
+			assertTrue(board.movePlayer(p, Board.dir.SOUTH));
+		} catch (NullPointerException e) {
+			System.out.println("There was an error. NullPointer Exception. "+e);
+		}
+	}
+	
+	@Test
+	public void testSuggestionMovesWeapon() {
+		Board board = initializeBoard(3);
+		try {
+			List<Weapon> weps = board.getWeapons();
+			Player p = board.getPlayersTurn();
+			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
+			board.movePlayer(p, Board.dir.WEST);
+			assertTrue(board.movePlayer(p, Board.dir.SOUTH));
+			board.debugSuggestion(p, board.getPlayers().get(0), weps.get(3));
+			assertTrue(weps.get(3).getPosition().getName().equals("Lounge"));
+			board.movePlayer(p, Board.dir.SOUTH);
+			assertTrue(p.getPosition().weapon == weps.get(3));
+			
+		} catch (NullPointerException e) {
+			System.out.println("There was an error. NullPointer Exception. "+e);
+		}
+	}
+	
+	@Test
+	public void testSuggestionMovesWeaponNotOntoPlayer() {
+		Board board = initializeBoard(3);
+		try {
+			List<Weapon> weps = board.getWeapons();
+			Player p = board.getPlayersTurn();
+			for(int i=0; i<6; i++) board.movePlayer(p, Board.dir.NORTH);
+			board.movePlayer(p, Board.dir.WEST);
+			assertTrue(board.movePlayer(p, Board.dir.SOUTH));
+			board.debugSuggestion(p, board.getPlayers().get(1), weps.get(3));
+			assertTrue(weps.get(3).getPosition().getName().equals("Lounge"));
+			board.movePlayer(p, Board.dir.WEST);
+			assertTrue(p.getPosition().weapon == weps.get(3));
+			
+		} catch (NullPointerException e) {
+			System.out.println("There was an error. NullPointer Exception. "+e);
+		}
+	}
+	
+	@Test
+	public void testAccusationWin() {
+		Board board = initializeBoard(3);
+		try {
+			Player p = board.getPlayersTurn();
+			List<Card> mc = board.getMurderCards();
+			assertTrue(board.debugAccusation(p, mc));
+		} catch (NullPointerException e) {
+			System.out.println("There was an error. NullPointer Exception. "+e);
+		}
+	}
+	
+	@Test
+	public void testGameOverWin() {
+		Board board = initializeBoard(3);
+		try {
+			Player p = board.getPlayersTurn();
+			List<Card> mc = board.getMurderCards();
+			assertTrue(board.debugAccusation(p, mc));
+			assertTrue(board.gameOver);
+		} catch (NullPointerException e) {
+			System.out.println("There was an error. NullPointer Exception. "+e);
+		}
+	}
+	
+	@Test
+	public void testAccusationLoss() {
+		Board board = initializeBoard(3);
+		try {
+			Player p = board.getPlayersTurn();
+			List<Card> mc = new ArrayList<Card>();
+			for(int i=0;i<3;i++) mc.add(new Card("name", "player"));
+			assertFalse(board.debugAccusation(p, mc));
+		} catch (NullPointerException e) {
+			System.out.println("There was an error. NullPointer Exception. "+e);
+		}
+	}
+	
+	@Test
+	public void testGameOverLoss() {
+		Board board = initializeBoard(3);
+		try {
+			List<Player> p = board.getPlayers();
+			List<Card> mc = new ArrayList<Card>();
+			for(int i=0;i<3;i++) mc.add(new Card("name", "player"));
+			for(int i=0;i<3;i++)
+				assertFalse(board.debugAccusation(p.get(i), mc));
+			assertTrue(board.runGame());
+		} catch (NullPointerException e) {
+			System.out.println("There was an error. NullPointer Exception. "+e);
+		}
+	}
+	
 	//Initialization Methods
 	
 	private Board initializeBoard(int numPlayers) {
