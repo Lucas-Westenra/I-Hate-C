@@ -1,5 +1,10 @@
 import java.util.*;
 
+/**
+ * Represents each player on the board
+ * @author Cameron Rose & Lucas Westenra
+ * @version 1.0
+ */
 public class Player
 {
 

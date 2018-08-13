@@ -1,3 +1,8 @@
+/**
+ * Represents a single card in the game
+ * @author Cameron Rose & Lucas Westenra
+ * @version 1.0
+ */
 
 public class Card
 {

@@ -1,4 +1,8 @@
-
+/**
+ * Represents an individual tile on the board 
+ * @author Cameron Rose & Lucas Westenra
+ * @version 1.0
+ */
 public class Tile{
   private String name;
   private int xPos;
