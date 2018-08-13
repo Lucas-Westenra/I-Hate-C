@@ -61,6 +61,22 @@ public class Board{
     return playersTurn;
   }
 
+public String getBoardState(){
+	  String state = "";
+	  for(int y=0;y<25;y++) {
+		  for(int x=0;x<24;x++) {
+			  if(tiles[x][y].player != null) state += tiles[x][y].player.getPiece();
+			  else if(tiles[x][y].weapon != null) state += tiles[x][y].weapon.getPiece();
+			  else if(tiles[x][y].isDoor) state += 'o';
+			  else if(tiles[x][y].getName().equals("Walkway")) state += ' ';
+			  else if(tiles[x][y].getName().equals("Inaccessible")) state += 'X';
+			  else state += '*';
+		  }
+		  state += "\n";
+	  }
+	  return state;
+  }
+	
   private static int inputNumber(String msg) {
 		System.out.print(msg + " ");
 		while (true) {
