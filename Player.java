@@ -14,7 +14,7 @@ public class Player
   private List<Card> hand;
   private char piece;
   private boolean playing;
-  private int isPlayer = -1;
+  private String playerName = null;
 
   public Player(String name, Tile position, char piece, boolean playing){
     this.name=name;
@@ -40,8 +40,8 @@ public class Player
     this.playing = playing;
   }
   
-  public void setPlayer(int player) {
-	  this.isPlayer = player;
+  public void setPlayer(String playerName) {
+	  this.playerName = playerName;
   }
 
   public String getName(){
@@ -74,10 +74,10 @@ public class Player
   }
   
   public boolean isPlaying() {
-	  return isPlayer!=-1;
+	  return playerName != null;
   }
 
-  public int getPlayer() { return isPlayer; }
+  public String getPlayer() { return playerName; }
 
   public int numberOfCards()
   {
