@@ -1,13 +1,22 @@
 
+import java.awt.BasicStroke;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.*;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JRadioButton;
 
 /**
  * Repsents the game board
  * @author Cameron Rose & Lucas Westenra
  * @version 1.0
  */
-public class Board{
+public class Board extends GUI{
 
 	//Fields
 	private Tile[][] tiles = new Tile[24][25];
@@ -340,7 +349,7 @@ public class Board{
 				System.out.print("You have moved into a dead end, you turn is over!\n");
 			}
 			else {
-				drawTiles();
+				redraw();
 			}
 			tileName = player.getPosition().getName();
 
@@ -363,7 +372,7 @@ public class Board{
 			doSuggestion(player, tileName);	
 		}
 		if(!gameOver) {
-			drawTiles();
+			redraw();
 		}
 
 	}
@@ -697,36 +706,27 @@ public class Board{
 		List<Player> playing = new ArrayList<Player>();
 
 		//startup options, choose characters and number of players
-		System.out.println("\t\tCLUEDO");
-		int nplayers = inputNumber("Enter the number of players that are playing: ");
-
-		while(nplayers < 3 || nplayers > 6) {  
-			System.out.println("The amount of players must be between 3-6");
-			nplayers = inputNumber("Enter the number of players that are playing: "); 
-		}
-		String text = "Which character would you like?\n"
-				+ "1:\t Miss Scarlett.\n"
-				+ "2:\t Col. Mustard.\n"
-				+ "3:\t Mrs. White.\n"
-				+ "4:\t Mr. Green.\n"
-				+ "5:\t Mrs. Peacock.\n"
-				+ "6:\t Prof. Plum.\n";
-		System.out.println(text);
-		for(int i=0; i<nplayers; i++) {
-			System.out.printf("Player '"+(i+1)+"' choose your character: ");
-			int selection = inputNumber("");
-			while(selection < 1 || selection > 6) {
-				System.out.println("You must choose a number between 1-6!");
-				System.out.printf("Player '"+(i+1)+"' is choosing: ");
-				selection = inputNumber("");
-			}
-			while(players.get(selection-1).isPlaying()) {
-				System.out.println("Character is already selected!");
-				System.out.printf("Player '"+(i+1)+"' choose your character: ");
-				selection = inputNumber("");
-			}
-			players.get(selection-1).setPlayer(i);
-			playing.add(players.get(selection-1));
+		List<String>names = new ArrayList<String>();
+		List<Integer>selections = new ArrayList<Integer>();
+		int nplayers = getNumPlayers();
+		if(nplayers == -1) return;
+		for(int i=0; i<nplayers; i++) { 
+			
+			//choose a unique player name
+			String name = getPlayerName("");
+			if(name == null) return;
+			while(names.contains(name)) name = getPlayerName("Must be a unique name!\n");
+			names.add(name);
+			
+			//choose a unique player selection
+			int selection = getCharacterChoice("");
+			if(selection == -1) return;
+			while(selections.contains(selection)) selection = getCharacterChoice("Must be a unique character!\n");
+			selections.add(selection);
+			
+			players.get(selection).setPlayer(name);
+			playing.add(players.get(selection));
+			
 		} 
 
 		System.out.println();
@@ -743,7 +743,8 @@ public class Board{
 		}
 
 		Board board = new Board(tiles, players, weapons, murderCards, doors, allCards, playing);
-		board.drawTiles();
+		board.redraw();
+		
 
 		board.runGame();
 	}
@@ -898,6 +899,77 @@ public class Board{
 			player.setPlaying(false);
 		}
 		return false;
+	}
+
+	@Override
+	protected void redraw(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setStroke(new BasicStroke(5));
+		
+		int width = getDrawingAreaDimension().width;
+		int height = getDrawingAreaDimension().height;
+		int offset;
+		if(width < height) offset = width/24;
+		else offset = height/24;
+		
+		g2.drawLine((width/2)-(12*offset), (height/2)-(11*offset), (width/2)-(12*offset), (height/2)+(11*offset));
+		g2.drawLine((width/2)+(12*offset), (height/2)-(13*offset), (width/2)+(12*offset), (height/2)+(13*offset));
+		
+		for(int y=0; y<25; y++) {
+			for(int x=0; x<24; x++) {
+				int xPos = width/2+(x-12)*offset;
+				int yPos = (int)(height/2+(y-12)*(offset/1.1));
+				String roomName = tiles[x][y].getName();
+				//if(tiles[x][y].player != null) g.drawChars(tiles[x][y].player.getPiece(), x, y);
+				if(moveTiles.contains(tiles[x][y])) g.drawString("o", xPos, yPos);
+				else if(tiles[x][y].isDoor) {
+					for(Door d: doors) {
+						if(d.t2.getXPos()==x && d.t2.getYPos()==y) {
+							if(d.t1.getXPos() == d.t2.getXPos()-1 || d.t1.getXPos() == d.t2.getXPos()+1) {
+								g.drawString("|", xPos, yPos);
+							}
+							else {
+								g.drawString("-", xPos, yPos);  
+							}
+						}
+						if(d.t1.getXPos()==x && d.t1.getYPos()==y) {
+							g.drawString(" ", xPos, yPos);
+						}
+					}
+				}
+				else if(tiles[x][y].weapon != null) System.out.printf("%s", tiles[x][y].weapon.getPiece());
+				else if(roomName.equals("Inaccessible"))
+					g.drawString("\u2588", xPos, yPos);
+				else if(!roomName.equals("Walkway"))
+					g.drawString(".", xPos, yPos);
+				else if(!moveTiles.contains(tiles[x][y]))
+					g.drawString(" ", xPos, yPos);
+			}
+		}
+		
+	}
+
+	@Override
+	protected void onClick(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void getInput() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onMove(Move m) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	protected static int getNumPlayers(Graphics g) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }
