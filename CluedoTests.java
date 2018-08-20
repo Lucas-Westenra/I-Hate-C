@@ -450,7 +450,7 @@ public class CluedoTests {
 		  List<Player> playing = new ArrayList<Player>();
 		  
 		  for(int i=0; i<numPlayers; i++) {
-			  players.get(i).setPlayer(i);
+			  players.get(i).setPlayer("name");
 			  playing.add(players.get(i));
 		  } 
 		  
