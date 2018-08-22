@@ -1,5 +1,6 @@
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionListener;
@@ -704,6 +705,8 @@ public class Board extends GUI{
 		}
 
 		List<Player> playing = new ArrayList<Player>();
+		
+	
 
 		//startup options, choose characters and number of players
 		List<String>names = new ArrayList<String>();
@@ -903,14 +906,25 @@ public class Board extends GUI{
 
 	@Override
 	protected void redraw(Graphics g) {
+		
+		/**
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setStroke(new BasicStroke(5));
 		
 		int width = getDrawingAreaDimension().width;
 		int height = getDrawingAreaDimension().height;
+		
+		
+		
 		int offset;
-		if(width < height) offset = width/24;
-		else offset = height/24;
+		if(width < height){
+			offset = width/24;
+		}
+		else {
+			offset = height/24;
+		}
+		
+		int centre = (width/2)-(12*offset);
 		
 		g2.drawLine((width/2)-(12*offset), (height/2)-(11*offset), (width/2)-(12*offset), (height/2)+(11*offset));
 		g2.drawLine((width/2)+(12*offset), (height/2)-(13*offset), (width/2)+(12*offset), (height/2)+(13*offset));
@@ -938,14 +952,74 @@ public class Board extends GUI{
 					}
 				}
 				else if(tiles[x][y].weapon != null) System.out.printf("%s", tiles[x][y].weapon.getPiece());
-				else if(roomName.equals("Inaccessible"))
-					g.drawString("\u2588", xPos, yPos);
+				else if(roomName.equals("Inaccessible")) {
+					
+					System.out.println(x);}
 				else if(!roomName.equals("Walkway"))
 					g.drawString(".", xPos, yPos);
 				else if(!moveTiles.contains(tiles[x][y]))
 					g.drawString(" ", xPos, yPos);
 			}
 		}
+		*/
+		
+		int width = getDrawingAreaDimension().width;
+		int height = getDrawingAreaDimension().height;
+
+		int offset;
+		if(width < height){
+			offset = width/24;
+		}
+		else {
+			offset = height/24;
+		}
+		
+		int centre = (width/2)-(12*offset); //The number of pixels needed to center the board
+		
+		for(int x=0; x<24; x++) {
+			for(int y=0; y<25; y++) {
+				if(tiles[x][y].getName().equals("Inaccessible")) {
+					g.setColor(new Color(164, 251 ,239));	
+					g.fillRect((x*offset)+centre, y*offset, offset, offset);
+				}
+				else if(tiles[x][y].getName().equals("Walkway")) {
+					g.setColor(new Color(255, 255 ,100));
+					g.fillRect((x*offset)+centre, y*offset, offset, offset);
+				}
+				else if(!(tiles[x][y].getName().equals("Walkway"))){
+					g.setColor(new Color(200, 200, 165));
+					g.fillRect((x*offset)+centre, y*offset, offset, offset);
+				}
+				if(tiles[x][y].player != null){
+					g.setColor(new Color(0,0,0));
+					g.fillOval(x*offset+centre+2, y*offset+2, offset-4, offset-4);
+					g.setColor(new Color(255,255,255));
+					
+					g.drawString(tiles[x][y].player.getPiece()+"", x*offset+centre+(offset/4),y*offset+(offset/1));
+				}
+				
+
+			}
+		}
+		
+		float alpha = 0.15f; //Transparency of 0.15
+		g.setColor(new Color(0 ,0, 0, alpha));	
+		((Graphics2D) g).setStroke(new BasicStroke(1));
+		
+		for(int x=0; x<24; x++) {
+			int y=0;
+			g.drawLine(x*offset+centre, y*offset, x*offset+centre, (y*offset)+(25*offset));
+		}
+		
+		for(int y=0; y<25; y++) {
+			int x=0;
+			g.drawLine((x*offset)+centre, y*offset, (x*offset)+(24*offset)+centre, y*offset);	
+		}
+		g.setColor(new Color(0 ,0, 0));	
+		((Graphics2D) g).setStroke(new BasicStroke(5));
+		g.drawRect(centre, 0, 24*offset, 25*offset); //Black border around the board
+		
+		
 		
 	}
 
