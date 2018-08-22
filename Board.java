@@ -1,6 +1,7 @@
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionListener;
@@ -277,8 +278,9 @@ public class Board extends GUI{
 	private void takeTurn(Player player) {
 		int moves = rollDice();
 		String tileName = "Walkway";
-		System.out.println("It's " + player.getName() + "'s turn!");
-		System.out.println(player.getName() +" rolled a "+moves+"!");
+		String outputMessage = "";
+		outputMessage += ("It's " + player.getName() + "'s turn!\n");
+		outputMessage += (player.getName() +" rolled a "+moves+"!");
 
 		for(int i=moves; i>0; i--) {
 			boolean noMove = true;
@@ -353,7 +355,7 @@ public class Board extends GUI{
 				redraw();
 			}
 			tileName = player.getPosition().getName();
-
+			getTextOutputArea().setText(outputMessage);
 		}
 		moveTiles.clear();
 		String choice;
@@ -670,7 +672,7 @@ public class Board extends GUI{
 		cards.remove(roomNum);
 
 		//Doors
-		doors.add(new Door(new Tile("Walkway", 4, 5), new Tile("Kitchen", 4, 6)));
+		doors.add(new Door(new Tile("Walkway", 4, 7), new Tile("Kitchen", 4, 6)));
 		doors.add(new Door(new Tile("Walkway", 7, 5), new Tile("Ball Room", 8, 5)));
 		doors.add(new Door(new Tile("Walkway", 9, 8), new Tile("Ball Room", 9, 7)));
 		doors.add(new Door(new Tile("Walkway", 14, 8), new Tile("Ball Room", 14, 7)));
@@ -962,9 +964,10 @@ public class Board extends GUI{
 			}
 		}
 		*/
+		getTextOutputArea().setText("Test Message!");
 		
 		int width = getDrawingAreaDimension().width;
-		int height = getDrawingAreaDimension().height;
+		int height = getDrawingAreaDimension().height-20;
 
 		int offset;
 		if(width < height){
@@ -986,16 +989,20 @@ public class Board extends GUI{
 					g.setColor(new Color(255, 255 ,100));
 					g.fillRect((x*offset)+centre, y*offset, offset, offset);
 				}
-				else if(!(tiles[x][y].getName().equals("Walkway"))){
-					g.setColor(new Color(200, 200, 165));
+				else if(tiles[x][y].getName().equals("Walkway")) {
+					g.setColor(new Color(255, 255 ,100));
+					g.fillRect((x*offset)+centre, y*offset, offset, offset);
+				}
+				else if((tiles[x][y].isDoor)){
+					g.setColor(new Color(255, 165, 0));
 					g.fillRect((x*offset)+centre, y*offset, offset, offset);
 				}
 				if(tiles[x][y].player != null){
 					g.setColor(new Color(0,0,0));
 					g.fillOval(x*offset+centre+2, y*offset+2, offset-4, offset-4);
 					g.setColor(new Color(255,255,255));
-					
-					g.drawString(tiles[x][y].player.getPiece()+"", x*offset+centre+(offset/4),y*offset+(offset/1));
+					g.setFont(new Font("TimesRoman", Font.PLAIN, (int)(offset*0.6)));
+					g.drawString(tiles[x][y].player.getPiece()+"", x*offset+centre+(offset/4)+1,y*offset+(offset/1)-3);
 				}
 				
 
@@ -1018,8 +1025,6 @@ public class Board extends GUI{
 		g.setColor(new Color(0 ,0, 0));	
 		((Graphics2D) g).setStroke(new BasicStroke(5));
 		g.drawRect(centre, 0, 24*offset, 25*offset); //Black border around the board
-		
-		
 		
 	}
 
