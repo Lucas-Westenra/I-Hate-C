@@ -49,7 +49,7 @@ public abstract class GUI {
 	 * called.
 	 */
 	public enum Move {
-		NORTH, SOUTH, EAST, WEST, ZOOM_IN, ZOOM_OUT
+		NORTH, SOUTH, EAST, WEST
 	};
 
 	// these are the methods you need to implement.
@@ -150,6 +150,7 @@ public abstract class GUI {
 
 	private static final int DEFAULT_DRAWING_HEIGHT = 400;
 	private static final int DEFAULT_DRAWING_WIDTH = 400;
+	private static final int TEXT_OUTPUT_ROWS = 5;
 	private static final int SEARCH_COLS = 15;
 
 	/*
@@ -171,7 +172,6 @@ public abstract class GUI {
 	private JTextArea textOutputArea;
 
 	private JTextField search;
-	private JFileChooser fileChooser;
 
 	public GUI() {
 		initialise();
@@ -320,6 +320,21 @@ public abstract class GUI {
 			public void mouseWheelMoved(MouseWheelEvent e) {
 			}
 		});
+		
+		/*
+		 * then make the JTextArea that goes down the bottom. we put this in a
+		 * JScrollPane to get scroll bars when necessary.
+		 */
+
+		textOutputArea = new JTextArea(TEXT_OUTPUT_ROWS, 0);
+		textOutputArea.setLineWrap(true);
+		textOutputArea.setWrapStyleWord(true); // pretty line wrap.
+		textOutputArea.setEditable(false);
+		JScrollPane scroll = new JScrollPane(textOutputArea);
+		// these two lines make the JScrollPane always scroll to the bottom when
+		// text is appended to the JTextArea.
+		DefaultCaret caret = (DefaultCaret) textOutputArea.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 		/*
 		 * finally, make the outer JFrame and put it all together. this is more
@@ -336,8 +351,9 @@ public abstract class GUI {
 		// the top, remove it.
 		split.setBorder(BorderFactory.createEmptyBorder());
 		split.setTopComponent(drawing);
-
-		frame = new JFrame("Mapper");
+		split.setBottomComponent(scroll);
+		
+		frame = new JFrame("Cluedo");
 		// this makes the program actually quit when the frame's close button is
 		// pressed.
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
