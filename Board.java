@@ -989,14 +989,7 @@ public class Board extends GUI{
 					g.setColor(new Color(255, 255 ,100));
 					g.fillRect((x*offset)+centre, y*offset, offset, offset);
 				}
-				else if(tiles[x][y].getName().equals("Walkway")) {
-					g.setColor(new Color(255, 255 ,100));
-					g.fillRect((x*offset)+centre, y*offset, offset, offset);
-				}
-				else if((tiles[x][y].isDoor)){
-					g.setColor(new Color(255, 165, 0));
-					g.fillRect((x*offset)+centre, y*offset, offset, offset);
-				}
+				
 				if(tiles[x][y].player != null){
 					g.setColor(new Color(0,0,0));
 					g.fillOval(x*offset+centre+2, y*offset+2, offset-4, offset-4);
@@ -1005,7 +998,27 @@ public class Board extends GUI{
 					g.drawString(tiles[x][y].player.getPiece()+"", x*offset+centre+(offset/4)+1,y*offset+(offset/1)-3);
 				}
 				
+				
+				
+				
 
+			}
+		}
+		((Graphics2D) g).setStroke(new BasicStroke(2));
+		g.setColor(new Color(0, 0, 0));
+		for(int x=0; x<24; x++) {
+			for(int y=0; y<25; y++) {
+				
+				
+					if(x+1 < 24 && !(tiles[x][y].getName().equals(tiles[x+1][y].getName()))) {
+						g.drawLine(x*offset+centre+offset, y*offset, x*offset+centre+offset, y*offset+offset);
+					}
+					if(y+1 < 25 && !(tiles[x][y].getName().equals(tiles[x][y+1].getName()))) {
+						g.drawLine(x*offset+centre, y*offset+offset, x*offset+centre+offset, y*offset+offset);
+					}
+					
+				
+				
 			}
 		}
 		
@@ -1026,6 +1039,8 @@ public class Board extends GUI{
 		((Graphics2D) g).setStroke(new BasicStroke(5));
 		g.drawRect(centre, 0, 24*offset, 25*offset); //Black border around the board
 		
+		
+		
 	}
 
 	@Override
@@ -1043,6 +1058,20 @@ public class Board extends GUI{
 	@Override
 	protected void onMove(Move m) {
 		// TODO Auto-generated method stub
+		switch(m) {
+			case EAST:
+				getTextOutputArea().setText("East");
+				break;
+			case WEST:
+				getTextOutputArea().setText("West");
+				break;
+			case NORTH:
+				getTextOutputArea().setText("North");
+				break;
+			case SOUTH:
+				getTextOutputArea().setText("South");
+				break;
+		}
 		
 	}
 	
