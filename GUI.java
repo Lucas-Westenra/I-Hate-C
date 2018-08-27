@@ -52,13 +52,6 @@ public abstract class GUI {
 	protected abstract void redraw(Graphics g);
 
 	/**
-	 * Is called whenever the search box is updated. Use getSearchBox to get the
-	 * JTextField object that is the search box itself.
-	 */
-	protected abstract void getInput();
-
-
-	/**
 	 * @return the JTextArea at the bottom of the screen for output.
 	 */
 	public JTextArea getTextOutputArea() {
@@ -292,15 +285,6 @@ public abstract class GUI {
 			}
 		});
 
-		search = new JTextField(SEARCH_COLS);
-		search.setMaximumSize(new Dimension(0, 25));
-		search.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getInput();
-				redraw();
-			}
-		});
-
 		controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.LINE_AXIS));
 
@@ -332,11 +316,6 @@ public abstract class GUI {
 		controls.add(Box.createRigidArea(new Dimension(15, 0)));
 		
 		controls.add(Box.createHorizontalGlue());
-
-		controls.add(new JLabel("Player Name"));
-		controls.add(Box.createRigidArea(new Dimension(5, 0)));
-		controls.add(search);
-
 
 		drawing = new JComponent() {
 			protected void paintComponent(Graphics g) {
