@@ -70,12 +70,6 @@ public abstract class GUI {
 	 */
 	protected abstract void getInput();
 
-	/**
-	 * Is called whenever a navigation button is pressed. An instance of the
-	 * Move enum is passed, representing the button clicked by the user.
-	 */
-
-	protected abstract void setMove(String m);
 
 	/**
 	 * @return the JTextArea at the bottom of the screen for output.
@@ -168,7 +162,7 @@ public abstract class GUI {
 	
 	public static int room(String text) {
 		Object[] choice = {"Kitchen", "Ball Room", "Conservatory", "Billiard Room", "Library", "Study", "Dining Room", "Hall", "Lounge"};
-		String s = (String)JOptionPane.showInputDialog(frame, text+"Which weapon would you like to choose?", "...", JOptionPane.PLAIN_MESSAGE, null, choice, "3");
+		String s = (String)JOptionPane.showInputDialog(frame, text+"Which room would you like to choose?", "...", JOptionPane.PLAIN_MESSAGE, null, choice, "3");
 		if((s != null) && (s.length() > 0)) {
 			switch(s) {
 			case "Kitchen": return 0;

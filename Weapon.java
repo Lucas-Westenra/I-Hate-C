@@ -1,3 +1,5 @@
+import java.awt.Color;
+
 /**
  * Represents a weapon in the game
  * @author Cameron Rose & Lucas Westenra

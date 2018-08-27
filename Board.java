@@ -117,7 +117,7 @@ public class Board extends GUI{
 			next = tiles[x][y-1];
 			for(Tile t: moveTiles) {
 				if(t.equals(next)) {
-					System.out.println("You have already been in this tile");
+
 					return false;
 				}
 			}
@@ -127,7 +127,7 @@ public class Board extends GUI{
 			next = tiles[x][y+1];
 			for(Tile t: moveTiles) {
 				if(t.equals(next)) {
-					System.out.println("You have already been in this tile");
+
 					return false;
 				}
 			}
@@ -137,7 +137,7 @@ public class Board extends GUI{
 			next = tiles[x+1][y];
 			for(Tile t: moveTiles) {
 				if(t.equals(next)) {
-					System.out.println("You have already been in this tile");
+
 					return false;
 				}
 			}
@@ -147,7 +147,7 @@ public class Board extends GUI{
 			next = tiles[x-1][y];
 			for(Tile t: moveTiles) {
 				if(t.equals(next)) {
-					System.out.println("You have already been in this tile");
+
 					return false;
 				}
 			}
@@ -362,13 +362,6 @@ public class Board extends GUI{
 				if(inp.equalsIgnoreCase("g")) i++;
 		}
 		
-		getTextOutputArea().setText("isValid");
-		try {
-			Thread.sleep(20000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		if(!player.getPlaying())
 			setInp("e");
@@ -379,39 +372,7 @@ public class Board extends GUI{
 			doSuggestion(player, tileName);	
 	}
 
-	public void setMove(String m) {
-		this.inp = m;
-	}
 
-	/**
-	 * helper method called at end of takeTurn(Player p)
-	 * prompts the player to select an action after turn is over
-	 * options available are dependent on location of player
-	 * returns the user's choice as a string
-	 * @param player
-	 * @param tileName
-	 * @return String
-	 */
-//	public String getEndTurnChoice(Player player, String tileName) {
-//		int ans = 0;
-//		System.out.print("Would you like to...\n");
-//		if(tileName.equals("Walkway")) {
-//			while(ans != 1 && ans != 2) 
-//				ans = inputNumber("1. Make an accusation. (1 per game)\n"
-//						+ "2. End turn.\n" + "Enter choice (1/2): ");
-//			if(ans == 1) return "accu";
-//		}
-//		else {
-//			while(ans != 1 && ans != 2 && ans != 3)
-//				ans = inputNumber("1. Make a suggestion. (Using room '" +tileName+"')\n"
-//						+ "2. Make an accusation. (1 per game)\n"
-//						+ "3. End turn\n" + "Enter choice (1/2/3): ");
-//			if(ans == 1) return "suggest";
-//			if(ans == 2) return "accu";
-//
-//		} 
-//		return "end";
-//	}
 
 	/**
 	 * prompts player to choose cards to suggest
@@ -439,8 +400,8 @@ public class Board extends GUI{
 		for(Card room: roomCards) 
 			if(room.getName().equals(tileName)) 
 				guessedCards.add(room);
-		guessedCards.add(getGuess(playerCards, "character"));
-		guessedCards.add(getGuess(weaponCards, "weapon"));
+		guessedCards.add(playerCards.get(character("")));
+		guessedCards.add(weaponCards.get(weapon("")));
 		for(Player p: players) {
 			if(p.getName().equals(guessedCards.get(1).getName()) && !guessedCards.get(1).getName().equals(player.getName())) {
 				p.getPosition().setPlayer(null);
@@ -507,9 +468,9 @@ public class Board extends GUI{
 			else if(c.getType().equals("Weapon")) weaponCards.add(c);
 		}
 		List<Card> guessedCards = new ArrayList<Card>();
-		guessedCards.add(getGuess(roomCards, "room"));
-		guessedCards.add(getGuess(playerCards, "character"));
-		guessedCards.add(getGuess(weaponCards, "weapon"));
+		guessedCards.add(roomCards.get(room("")));
+		guessedCards.add(playerCards.get(character("")));
+		guessedCards.add(weaponCards.get(weapon("")));
 		if(guessedCards.get(0) == murderCards.get(0) &&
 				guessedCards.get(1) == murderCards.get(1) &&
 				guessedCards.get(2) == murderCards.get(2)) {
@@ -852,7 +813,6 @@ public class Board extends GUI{
 	@Override
 	protected void redraw(Graphics g) {
 	
-		getTextOutputArea().setText("Test Message!");
 		
 		int width = getDrawingAreaDimension().width;
 		int height = getDrawingAreaDimension().height-20;
