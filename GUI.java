@@ -43,26 +43,13 @@ import javax.swing.text.DefaultCaret;
  * @author tony
  */
 public abstract class GUI {
-	/**
-	 * defines the different types of movement the user can perform, the
-	 * appropriate one is passed to your code when the move(Move) method is
-	 * called.
-	 */
-	public enum Move {
-		NORTH, SOUTH, EAST, WEST
-	};
+	
 
 	/**
 	 * Is called when the drawing area is redrawn and performs all the logic for
 	 * the actual drawing, which is done with the passed Graphics object.
 	 */
 	protected abstract void redraw(Graphics g);
-
-	/**
-	 * Is called when the mouse is clicked (actually, when the mouse is
-	 * released), and is passed the MouseEvent object for that click.
-	 */
-	protected abstract void onClick(MouseEvent e);
 
 	/**
 	 * Is called whenever the search box is updated. Use getSearchBox to get the
@@ -94,6 +81,10 @@ public abstract class GUI {
 		frame.repaint();
 	}
 	
+	/**
+	 * Creates a dialog box asking the user for the amount of players
+	 * @return Number of players
+	 */
 	public static int getNumPlayers() {
 		Object[] choice = {"3", "4", "5", "6"};
 		String s = (String)JOptionPane.showInputDialog(frame, "How many players?", "...", JOptionPane.PLAIN_MESSAGE, null, choice, "3");
@@ -104,6 +95,11 @@ public abstract class GUI {
 		return -1;
 	}
 	
+	/**
+	 * Creates a dialog box asking for all the players names
+	 * @param text
+	 * @return gets the players name
+	 */
 	public static String getPlayerName(String text) {
 		Object[] choice = null;
 		String s = (String)JOptionPane.showInputDialog(frame, text+"Choose your player name", "...", JOptionPane.PLAIN_MESSAGE, null, choice, "3");
@@ -113,6 +109,12 @@ public abstract class GUI {
 		return null; //Dead code
 	}
 	
+	
+	/**
+	 * Creates a dialog box asking the user for what character they want to be
+	 * @param text
+	 * @return Character choice
+	 */
 	public static int getCharacterChoice(String text) {
 		Object[] choice = {"Miss Scarlett", "Colonel Mustard", "Mrs. White", "Mr. Green", "Mrs. Peacock", "Professor Plum"};
 		String s = (String)JOptionPane.showInputDialog(frame, text+"Which character would you like?", "...", JOptionPane.PLAIN_MESSAGE, null, choice, "3");
@@ -129,6 +131,11 @@ public abstract class GUI {
 		return -1; //Dead code
 	}
 	
+	/**
+	 * 
+	 * @param text
+	 * @return The choice of character chosen for accusation
+	 */
 	public static int character(String text) {
 		Object[] choice = {"Miss Scarlett", "Colonel Mustard", "Mrs. White", "Mr. Green", "Mrs. Peacock", "Professor Plum"};
 		String s = (String)JOptionPane.showInputDialog(frame, text+"Which character would you like to choose?", "...", JOptionPane.PLAIN_MESSAGE, null, choice, "3");
@@ -144,6 +151,12 @@ public abstract class GUI {
 		}
 		return -1; //Dead code
 	}
+	
+	/**
+	 * 
+	 * @param text
+	 * @return The choice of weapon chosen for accusation and suggestions
+	 */
 	public static int weapon(String text) {
 		Object[] choice = {"Candlestick", "Dagger", "Lead Pipe", "Revolver", "Rope", "Spanner"};
 		String s = (String)JOptionPane.showInputDialog(frame, text+"Which weapon would you like to choose?", "...", JOptionPane.PLAIN_MESSAGE, null, choice, "3");
@@ -160,6 +173,11 @@ public abstract class GUI {
 		return -1; //Dead code
 	}
 	
+	/**
+	 * 
+	 * @param text
+	 * @return The choice of room chosen for accusation and suggestions
+	 */
 	public static int room(String text) {
 		Object[] choice = {"Kitchen", "Ball Room", "Conservatory", "Billiard Room", "Library", "Study", "Dining Room", "Hall", "Lounge"};
 		String s = (String)JOptionPane.showInputDialog(frame, text+"Which room would you like to choose?", "...", JOptionPane.PLAIN_MESSAGE, null, choice, "3");
@@ -180,35 +198,18 @@ public abstract class GUI {
 	}
 
 
-	
-
-	// --------------------------------------------------------------------
-	// Everything below here is Swing-related and, while it's worth
-	// understanding, you don't need to look any further to finish the
-	// assignment up to and including completion.
-	// --------------------------------------------------------------------
 
 	private static final int DEFAULT_DRAWING_HEIGHT = 400;
 	private static final int DEFAULT_DRAWING_WIDTH = 400;
 	private static final int TEXT_OUTPUT_ROWS = 5;
 	private static final int SEARCH_COLS = 15;
 
-	/*
-	 * In Swing, everything is a component; buttons, graphics panes, tool tips,
-	 * and the window frame are all components. This is implemented by
-	 * JComponent, which sits at the top of the component inheritance hierarchy.
-	 * A JFrame is a component that represents the outer window frame (with the
-	 * minimise, maximise, and close buttons) of your program. Every swing
-	 * program has to have one somewhere. JFrames can, of course, have other
-	 * components inside them. JPanels are your bog-standard container component
-	 * (can have other components inside them), that are used for laying out
-	 * your UI.
-	 */
+
 
 	private static JFrame frame;
 
 	private JPanel controls;
-	private JComponent drawing; // we customise this to make it a drawing pane.
+	private JComponent drawing; 
 	private JTextArea textOutputArea;
 
 	private JTextField search;
@@ -220,19 +221,10 @@ public abstract class GUI {
 	@SuppressWarnings("serial")
 	private void initialise() {
 
-		/*
-		 * first, we make the buttons etc. that go along the top bar.
-		 */
-
-		// action listeners give you a hook to perform when the button is
-		// pressed. the horrible thing being passed to addActionListener is an
-		// anonymous class, covered in SWEN221. these are useful when working
-		// with swing. the quit button isn't really necessary, as you can just
-		// press the frame's close button, but it serves as a nice example.
 		JButton quit = new JButton("Quit");
 		quit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
-				System.exit(0); //******************ask user to exit*****************************
+				System.exit(0); 
 			}
 		});
 
@@ -299,14 +291,7 @@ public abstract class GUI {
 				redraw();
 			}
 		});
-		
-		
-		
-		//setLabel("Enter a value!");
-		
-		// next, make the search box at the top-right. we manually fix
-		// it's size, and add an action listener to call your code when
-		// the user presses enter.
+
 		search = new JTextField(SEARCH_COLS);
 		search.setMaximumSize(new Dimension(0, 25));
 		search.addActionListener(new ActionListener() {
@@ -316,35 +301,20 @@ public abstract class GUI {
 			}
 		});
 
-		/*
-		 * next, make the top bar itself and arrange everything inside of it.
-		 */
-
-		// almost any component (JPanel, JFrame, etc.) that contains other
-		// components inside it needs a LayoutManager to be useful, these do
-		// exactly what you expect. three common LayoutManagers are the BoxLayout,
-		// GridLayout, and BorderLayout. BoxLayout, contrary to its name, places
-		// components in either a row (LINE_AXIS) or a column (PAGE_AXIS).
-		// GridLayout is self-describing. BorderLayout puts a single component
-		// on the north, south, east, and west sides of the outer component, as
-		// well as one in the centre. google for more information.
 		controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.LINE_AXIS));
 
-		// make an empty border so the components aren't right up against the
-		// frame edge.
+
 		Border edge = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 		controls.setBorder(edge);
 
 		JPanel loadquit = new JPanel();
 		loadquit.setLayout(new GridLayout(2, 1));
-		// manually set a fixed size for the panel containing the load and quit
-		// buttons (doesn't change with window resize).
+
 		loadquit.setMaximumSize(new Dimension(50, 100));
 		loadquit.add(quit);
 		controls.add(loadquit);
-		// rigid areas are invisible components that can be used to space
-		// components out.
+
 		controls.add(Box.createRigidArea(new Dimension(15, 0)));
 
 		JPanel navigation = new JPanel();
@@ -360,19 +330,13 @@ public abstract class GUI {
 		navigation.add(hand);
 		controls.add(navigation);
 		controls.add(Box.createRigidArea(new Dimension(15, 0)));
-		// glue is another invisible component that grows to take up all the
-		// space it can on resize.
+		
 		controls.add(Box.createHorizontalGlue());
 
 		controls.add(new JLabel("Player Name"));
 		controls.add(Box.createRigidArea(new Dimension(5, 0)));
 		controls.add(search);
 
-		/*
-		 * then make the drawing canvas, which is really just a boring old
-		 * JComponent with the paintComponent method overridden to paint
-		 * whatever we like. this is the easiest way to do drawing.
-		 */
 
 		drawing = new JComponent() {
 			protected void paintComponent(Graphics g) {
@@ -381,13 +345,12 @@ public abstract class GUI {
 		};
 		drawing.setPreferredSize(new Dimension(DEFAULT_DRAWING_WIDTH,
 				DEFAULT_DRAWING_HEIGHT));
-		// this prevents a bug where the component won't be
-		// drawn until it is resized.
+
 		drawing.setVisible(true);
 
 		drawing.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent e) {
-				onClick(e);
+				
 				redraw();
 			}
 		});
@@ -397,47 +360,36 @@ public abstract class GUI {
 			}
 		});
 		
-		/*
-		 * then make the JTextArea that goes down the bottom. we put this in a
-		 * JScrollPane to get scroll bars when necessary.
-		 */
+
 
 		textOutputArea = new JTextArea(TEXT_OUTPUT_ROWS, 0);
 		textOutputArea.setLineWrap(true);
-		textOutputArea.setWrapStyleWord(true); // pretty line wrap.
+		textOutputArea.setWrapStyleWord(true); 
 		textOutputArea.setEditable(false);
 		JScrollPane scroll = new JScrollPane(textOutputArea);
-		// these two lines make the JScrollPane always scroll to the bottom when
-		// text is appended to the JTextArea.
+	
 		DefaultCaret caret = (DefaultCaret) textOutputArea.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
-		/*
-		 * finally, make the outer JFrame and put it all together. this is more
-		 * complicated than it could be, as we put the drawing and text output
-		 * components inside a JSplitPane so they can be resized by the user.
-		 * the JScrollPane and the top bar are then added to the frame.
-		 */
+
 
 		JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		split.setDividerSize(5); // make the selectable area smaller
-		split.setContinuousLayout(true); // make the panes resize nicely
-		split.setResizeWeight(1); // always give extra space to drawings
-		// JSplitPanes have a default border that makes an ugly row of pixels at
-		// the top, remove it.
+		split.setDividerSize(5); 
+		split.setContinuousLayout(true); 
+		split.setResizeWeight(1); 
+
 		split.setBorder(BorderFactory.createEmptyBorder());
 		split.setTopComponent(drawing);
 		split.setBottomComponent(scroll);
 		
 		frame = new JFrame("Cluedo");
-		// this makes the program actually quit when the frame's close button is
-		// pressed.
+
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 		frame.add(controls, BorderLayout.NORTH);
 		frame.add(split, BorderLayout.CENTER);
 
-		// always do these two things last, in this order.
+
 		frame.pack();
 		frame.setVisible(true);
 	}
