@@ -9,6 +9,7 @@ public class Weapon
   private String name;
   private Tile position;
   private char piece;
+  Color weaponColor;
   
   public Weapon(String name, Tile position, char piece){
     this.name=name;
