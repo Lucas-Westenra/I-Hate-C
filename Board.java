@@ -864,22 +864,4 @@ public class Board extends GUI{
 		g.drawString("LOUNGE", centre+(offset*2),offset*22+(offset/4));
 	}
 
-
-	@Override
-	protected void onClick(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void getInput() {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	protected static int getNumPlayers(Graphics g) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 }
