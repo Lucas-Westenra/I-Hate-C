@@ -52,8 +52,6 @@ public abstract class GUI {
 		NORTH, SOUTH, EAST, WEST
 	};
 
-	// these are the methods you need to implement.
-
 	/**
 	 * Is called when the drawing area is redrawn and performs all the logic for
 	 * the actual drawing, which is done with the passed Graphics object.
@@ -76,11 +74,8 @@ public abstract class GUI {
 	 * Is called whenever a navigation button is pressed. An instance of the
 	 * Move enum is passed, representing the button clicked by the user.
 	 */
-	protected abstract void onMove(Move m);
-	
-//	protected abstract String getPlayer();
-//	
-//	protected static abstract int choosePlayer(String playerName);
+
+	protected abstract void setMove(String m);
 
 	/**
 	 * @return the JTextArea at the bottom of the screen for output.
@@ -199,7 +194,7 @@ public abstract class GUI {
 		JButton west = new JButton("\u2190");
 		west.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
-				onMove(Move.WEST);
+				Board.setInp("a");
 				redraw();
 			}
 		});
@@ -207,7 +202,7 @@ public abstract class GUI {
 		JButton east = new JButton("\u2192");
 		east.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
-				onMove(Move.EAST);
+				Board.setInp("d");
 				redraw();
 			}
 		});
@@ -215,7 +210,7 @@ public abstract class GUI {
 		JButton north = new JButton("\u2191");
 		north.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
-				onMove(Move.NORTH);
+				Board.setInp("w");
 				redraw();
 			}
 		});
@@ -223,7 +218,39 @@ public abstract class GUI {
 		JButton south = new JButton("\u2193");
 		south.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
-				onMove(Move.SOUTH);
+				Board.setInp("s");
+				redraw();
+			}
+		});
+		
+		JButton accuse = new JButton("Accuse");
+		accuse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				Board.setInp("c");
+				redraw();
+			}
+		});
+		
+		JButton suggest = new JButton("Suggest");
+		suggest.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				Board.setInp("g");
+				redraw();
+			}
+		});
+		
+		JButton end = new JButton("End Turn");
+		end.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				Board.setInp("e");
+				redraw();
+			}
+		});
+		
+		JButton hand = new JButton("Hand");
+		hand.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				Board.setInp("h");
 				redraw();
 			}
 		});
@@ -278,10 +305,14 @@ public abstract class GUI {
 		JPanel navigation = new JPanel();
 		navigation.setMaximumSize(new Dimension(150, 60));
 		navigation.setLayout(new GridLayout(2, 3));
+		navigation.add(suggest);
 		navigation.add(north);
+		navigation.add(accuse);
+		navigation.add(end);
 		navigation.add(west);
 		navigation.add(south);
 		navigation.add(east);
+		navigation.add(hand);
 		controls.add(navigation);
 		controls.add(Box.createRigidArea(new Dimension(15, 0)));
 		// glue is another invisible component that grows to take up all the
