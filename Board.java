@@ -658,7 +658,11 @@ public class Board extends GUI{
 		cards.add(new Card("Hall", "Room"));
 		cards.add(new Card("Lounge", "Room"));
 		for(Player p: players) cards.add(new Card(p.getName(), "Player"));
-		for(Weapon w: weapons) cards.add(new Card(w.getName(), "Weapon"));
+		for(Weapon w: weapons){
+			cards.add(new Card(w.getName(), "Weapon"));
+			w.weaponColor = new Color((int)(Math.random()*255), (int)(Math.random()*255), (int)(Math.random()*255));
+
+		}
 		for(Card c: cards) allCards.add(c);
 
 		//murderCards
@@ -781,69 +785,6 @@ public class Board extends GUI{
 		}
 		return true;
 	}
-
-	/**
-	 * Draws the whole board to the console
-	 */
-	private void drawTiles() {
-		System.out.print("\t\t\t   BALL\n");
-		System.out.print("\t\t\t   ROOM\n");
-		System.out.print("\t\t");
-		for(int i = 0; i<=25; i++) {
-			System.out.print('\u2588');
-		}
-		printKey(-1);
-
-		for(int y=0; y<25; y++) {
-			System.out.println();
-			if(y==3) System.out.print("\tKITCHEN "+'\u2588');
-			else if(y==13) System.out.print("    DINING ROOM "+'\u2588');
-			else if(y==22) System.out.print("\t LOUNGE "+'\u2588');
-			else System.out.print("\t\t"+ '\u2588');
-			for(int x=0; x<24; x++) {
-				String roomName = tiles[x][y].getName();
-
-				if(tiles[x][y].player != null) System.out.printf("%s", tiles[x][y].player.getPiece());
-				else if(moveTiles.contains(tiles[x][y])) System.out.print("o");
-				else if(tiles[x][y].isDoor) {
-					for(Door d: doors) {
-						if(d.t2.getXPos()==x && d.t2.getYPos()==y) {
-							if(d.t1.getXPos() == d.t2.getXPos()-1 || d.t1.getXPos() == d.t2.getXPos()+1) {
-								System.out.print("|");
-							}
-							else {
-								System.out.print("-");  
-							}
-						}
-						if(d.t1.getXPos()==x && d.t1.getYPos()==y) {
-							System.out.print(" ");
-						}
-					}
-				}
-				else if(tiles[x][y].weapon != null) System.out.printf("%s", tiles[x][y].weapon.getPiece());
-				else if(roomName.equals("Inaccessible"))
-					System.out.printf("%s", '\u2588');
-				else if(!roomName.equals("Walkway"))
-					System.out.printf("%s", '.');
-				else if(!moveTiles.contains(tiles[x][y]))
-					System.out.printf("%s", ' ');
-			}
-			System.out.print('\u2588');
-			if(y==3) System.out.print(" CONSERVATORY");
-			if(y==10) System.out.print(" BILLIARD");
-			if(y==11) System.out.print("   ROOM");
-			if(y==15) System.out.print(" LIBRARY");
-			if(y==23) System.out.print(" STUDY");
-
-			printKey(y);
-		}
-		System.out.printf("%s", "\n\t\t");
-		for(int i = 0; i<=25; i++) {
-			System.out.print('\u2588');
-		}
-
-		System.out.print("\n\t\t\t   HALL\n");
-	}
 	
 	/**
 	 * This method is used to test the doSuggestion method for the JUnit test suite
@@ -910,62 +851,8 @@ public class Board extends GUI{
 
 	@Override
 	protected void redraw(Graphics g) {
-		
-		/**
-		Graphics2D g2 = (Graphics2D) g;
-		g2.setStroke(new BasicStroke(5));
-		
-		int width = getDrawingAreaDimension().width;
-		int height = getDrawingAreaDimension().height;
-		
-		
-		
-		int offset;
-		if(width < height){
-			offset = width/24;
-		}
-		else {
-			offset = height/24;
-		}
-		
-		int centre = (width/2)-(12*offset);
-		
-		g2.drawLine((width/2)-(12*offset), (height/2)-(11*offset), (width/2)-(12*offset), (height/2)+(11*offset));
-		g2.drawLine((width/2)+(12*offset), (height/2)-(13*offset), (width/2)+(12*offset), (height/2)+(13*offset));
-		
-		for(int y=0; y<25; y++) {
-			for(int x=0; x<24; x++) {
-				int xPos = width/2+(x-12)*offset;
-				int yPos = (int)(height/2+(y-12)*(offset/1.1));
-				String roomName = tiles[x][y].getName();
-				//if(tiles[x][y].player != null) g.drawChars(tiles[x][y].player.getPiece(), x, y);
-				if(moveTiles.contains(tiles[x][y])) g.drawString("o", xPos, yPos);
-				else if(tiles[x][y].isDoor) {
-					for(Door d: doors) {
-						if(d.t2.getXPos()==x && d.t2.getYPos()==y) {
-							if(d.t1.getXPos() == d.t2.getXPos()-1 || d.t1.getXPos() == d.t2.getXPos()+1) {
-								g.drawString("|", xPos, yPos);
-							}
-							else {
-								g.drawString("-", xPos, yPos);  
-							}
-						}
-						if(d.t1.getXPos()==x && d.t1.getYPos()==y) {
-							g.drawString(" ", xPos, yPos);
-						}
-					}
-				}
-				else if(tiles[x][y].weapon != null) System.out.printf("%s", tiles[x][y].weapon.getPiece());
-				else if(roomName.equals("Inaccessible")) {
-					
-					System.out.println(x);}
-				else if(!roomName.equals("Walkway"))
-					g.drawString(".", xPos, yPos);
-				else if(!moveTiles.contains(tiles[x][y]))
-					g.drawString(" ", xPos, yPos);
-			}
-		}
-		*/
+	
+		getTextOutputArea().setText("Test Message!");
 		
 		int width = getDrawingAreaDimension().width;
 		int height = getDrawingAreaDimension().height-20;
@@ -975,7 +862,7 @@ public class Board extends GUI{
 			offset = width/24;
 		}
 		else {
-			offset = height/24;
+			offset = height/25;
 		}
 		
 		int centre = (width/2)-(12*offset); //The number of pixels needed to center the board
@@ -993,26 +880,59 @@ public class Board extends GUI{
 				
 				if(tiles[x][y].player != null){
 					g.setColor(new Color(0,0,0));
-					g.fillOval(x*offset+centre+2, y*offset+2, offset-4, offset-4);
+					g.fillOval(x*offset+centre+(int)(offset*0.125), y*offset+(int)(offset*0.125), (int)(offset*0.8), (int)(offset*0.8));
 					g.setColor(new Color(255,255,255));
-					g.setFont(new Font("TimesRoman", Font.PLAIN, (int)(offset*0.6)));
-					g.drawString(tiles[x][y].player.getPiece()+"", x*offset+centre+(offset/4)+1,y*offset+(offset/1)-3);
+					g.setFont(new Font("TimesRoman", Font.BOLD, (int)(offset*0.6)));
+					g.drawString(tiles[x][y].player.getPiece()+"", x*offset+centre+(offset/4)+1,y*offset+(offset/1)-5);
+				}
+				
+				if(tiles[x][y].weapon != null) {
+					g.setColor(tiles[x][y].weapon.weaponColor);
+					g.fillOval(x*offset+centre+(int)(offset*0.15), y*offset+(int)(offset*0.15), (int)(offset*0.7), (int)(offset*0.7));
+					g.setColor(new Color(255,255,255));
+					g.setFont(new Font("Verdana", Font.BOLD, (int)(offset*0.6)));
+					g.drawString(tiles[x][y].weapon.getPiece()+"", x*offset+centre+(offset/3),y*offset+(int)(offset*0.66));
 				}
 
 			}
 		}
+		
 		((Graphics2D) g).setStroke(new BasicStroke(2));
-		g.setColor(new Color(0, 0, 0));
+		
 		for(int x=0; x<24; x++) {
 			for(int y=0; y<25; y++) {
 				
+				g.setColor(new Color(0, 0, 0));
+				if(x+1 < 24 && !(tiles[x][y].getName().equals(tiles[x+1][y].getName()))) {
+					g.drawLine(x*offset+centre+offset, y*offset, x*offset+centre+offset, y*offset+offset);
+				}
+				if(y+1 < 25 && !(tiles[x][y].getName().equals(tiles[x][y+1].getName()))) {
+					g.drawLine(x*offset+centre, y*offset+offset, x*offset+centre+offset, y*offset+offset);
+				}
 				
-					if(x+1 < 24 && !(tiles[x][y].getName().equals(tiles[x+1][y].getName()))) {
-						g.drawLine(x*offset+centre+offset, y*offset, x*offset+centre+offset, y*offset+offset);
+				((Graphics2D) g).setStroke(new BasicStroke(2));
+				g.setColor(new Color(255, 255 ,100));
+				for(Door d: doors) {
+					if(tiles[x][y].isDoor) {
+						if(x == d.t1.getXPos() && y == d.t1.getYPos()) {
+							if(x+1 == d.t2.getXPos() && y == d.t2.getYPos()) {	
+								g.drawLine(x*offset+centre+offset, y*offset, x*offset+centre+offset, y*offset+offset);
+							}
+							else if(x-1 == d.t2.getXPos() && y == d.t2.getYPos()) {	
+								g.drawLine(x*offset+centre, y*offset, x*offset+centre, y*offset+offset);
+							}
+							else if(x == d.t2.getXPos() && y+1 == d.t2.getYPos()) {
+								g.drawLine(x*offset+centre, y*offset+offset, x*offset+centre+offset, y*offset+offset);
+							}
+							else if(x == d.t2.getXPos() && y-1 == d.t2.getYPos()) {
+								g.drawLine(x*offset+centre, y*offset, x*offset+centre+offset, y*offset);
+							}
+						}
+
 					}
-					if(y+1 < 25 && !(tiles[x][y].getName().equals(tiles[x][y+1].getName()))) {
-						g.drawLine(x*offset+centre, y*offset+offset, x*offset+centre+offset, y*offset+offset);
-					}
+				}
+					
+
 			}
 		}
 		
@@ -1033,9 +953,23 @@ public class Board extends GUI{
 		((Graphics2D) g).setStroke(new BasicStroke(5));
 		g.drawRect(centre, 0, 24*offset, 25*offset); //Black border around the board
 		
+		//Here to end of method
+		alpha = 0.4f; //Transparency of 0.15
+		g.setColor(new Color(0 ,0, 0, alpha));
+		g.setFont(new Font("Verdana", Font.BOLD, (int)(offset/1.5)));
 		
-		
+		g.drawString("HALL", centre+(offset*11),offset*22);
+		g.drawString("STUDY", centre+(offset*19)+(offset/2),offset*24-(int)(offset/1.5));
+		g.drawString("LIBRARY", centre+(offset*19),offset*17);
+		g.drawString("BILLIARD", centre+(offset*19)+(offset/4),offset*11-(offset/2));
+		g.drawString("ROOM", centre+(offset*20)-(offset/4),offset*12-(offset/2));
+		g.drawString("CONSERV.", centre+(offset*19),offset*4);
+		g.drawString("BALL ROOM", centre+(offset*10)-(offset/6),offset*5);
+		g.drawString("KITCHEN", centre+(offset)+(offset/3),offset*3+(offset/2));
+		g.drawString("DINING ROOM", centre+(offset*1)+(offset/4),offset*13);
+		g.drawString("LOUNGE", centre+(offset*2),offset*22+(offset/4));
 	}
+
 
 	@Override
 	protected void onClick(MouseEvent e) {
