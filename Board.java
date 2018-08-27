@@ -247,6 +247,7 @@ public class Board extends GUI{
 	 */
 	private void takeTurn(Player player) {
 		int moves = rollDice();
+		int allMoves = moves;
 		String tileName = "Walkway";
 		String endTurnMessage = "";
 		String outputMessage = ("It's "+player.getPlayer()+"'s turn! ("+player.getName()+")\n");
@@ -259,7 +260,6 @@ public class Board extends GUI{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-//			System.out.print("Inp = "+Board.inp);
 			if(!getInp().equals("")) { 
 				boolean noMove = true;
 				boolean deadEnd = false;
@@ -311,22 +311,18 @@ public class Board extends GUI{
 							hand += ("\n\t"+card.getType()+": "+card.getName());
 						getTextOutputArea().setText(hand);
 					}
-					else if(!(player.getPosition().getName().equals("Walkway")) && inp.equalsIgnoreCase("end")){
+					else if(!(player.getPosition().getName().equals("Walkway")) && inp.equalsIgnoreCase("e")){
 						i=0;
 						noMove = false;
 					}
 					setInp("");
 	
 				}
-				if(deadEnd) {
-					System.out.print("You have moved into a dead end, you turn is over!\n");
-				}
-				else {
-					redraw();
-				}
+				redraw();
 				tileName = player.getPosition().getName();
 				if(i>0) {
-					outputMessage = (player.getName() + " has " + (i) + " moves left.");
+					outputMessage = (player.getName()+"has rolled a "+allMoves+"\n");
+					outputMessage += (player.getName() + " has " + (i) + " moves left.");
 					if(!player.getPosition().getName().equals("Walkway")){
 						outputMessage += ("\n"+player.getName()+" is in a room and may end their turn.");
 					}
@@ -356,7 +352,6 @@ public class Board extends GUI{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			System.out.println(inp+"\n");
 			if(inp.equalsIgnoreCase("c") || inp.equalsIgnoreCase("e")) i++;
 			else if(!player.getPosition().getName().equalsIgnoreCase("Walkway"))
 				if(inp.equalsIgnoreCase("g")) i++;
@@ -368,7 +363,7 @@ public class Board extends GUI{
 
 		if(inp.equals("c")) 
 			if(player.isPlaying()) doAccusation(player);
-		else if(inp.equals("g")) 
+		if(inp.equals("g")) 
 			doSuggestion(player, tileName);	
 	}
 
@@ -384,13 +379,10 @@ public class Board extends GUI{
 	 * @param tileName
 	 */
 	private void doSuggestion(Player player, String tileName) {
+		String found = "";
 		List<Card> roomCards = new ArrayList<Card>();
 		List<Card> playerCards = new ArrayList<Card>();
 		List<Card> weaponCards = new ArrayList<Card>();
-		System.out.println("Your hand is: ");
-		for(Card handCard: player.getHand()) { 
-			System.out.println("\t"+handCard.getType()+": "+handCard.getName());
-		}
 		for(Card c: allCards) {
 			if(c.getType().equals("Room")) roomCards.add(c);
 			else if(c.getType().equals("Player")) playerCards.add(c);
@@ -419,32 +411,24 @@ public class Board extends GUI{
 
 		List<Card> foundCards = new ArrayList<Card>();
 		for(Player p: playing) {
-			int count = 0;
-			List<Card> cardList = new ArrayList<Card>();
 			for(int cc=0; cc<3; cc++) {
 				if(p != player)
 					if(p.getHand().contains(guessedCards.get(cc))) {
-						count++;
-						cardList.add(guessedCards.get(cc));
+						found += ("Player "+p.getName()+" has the "+guessedCards.get(cc).getName()+" card!\n");
 						foundCards.add(guessedCards.get(cc));
 					}
-			}
-			if(count > 1) {
-				System.out.println(p.getName()+" Which card would you like to show?\n");
-				for(int i=0;i<count;i++) System.out.println(i+1+": "+cardList.get(i).getName());
-				int inp = 0;//(inputNumber("You may only show one: "));
-				while(inp<1 || inp>count) inp = 0;//inputNumber("Please select a valid number.");
-				System.out.println("Player "+p.getName()+" has the "+(cardList.get(inp-1).getName())+" card!");
-				for(int i=0;i<count;i++) {
-					if(i != inp-1) System.out.println("The "+(cardList.get(i).getName())+"card was not found!");
-				}
 			} 
-			else if(count == 1)
-				System.out.println("Player "+p.getName()+" has the "+cardList.get(0).getName()+" card!");
+			
 		}
 		for(Card c: guessedCards) {
 			if(!foundCards.contains(c))
-				System.out.println("The "+c.getName()+" card was not found!");
+				found += ("The "+c.getName()+" card was not found!\n");
+		}
+		getTextOutputArea().setText(found);
+		try {
+			Thread.sleep(6000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -455,13 +439,10 @@ public class Board extends GUI{
 	 * @param player
 	 */
 	private void doAccusation(Player player) {
+		String out = "";
 		List<Card> roomCards = new ArrayList<Card>();
 		List<Card> playerCards = new ArrayList<Card>();
 		List<Card> weaponCards = new ArrayList<Card>();
-		System.out.println("Your hand is: ");
-		for(Card handCard: player.getHand()) { 
-			System.out.println("\t"+handCard.getType()+": "+handCard.getName());
-		}
 		for(Card c: allCards) {
 			if(c.getType().equals("Room")) roomCards.add(c);
 			else if(c.getType().equals("Player")) playerCards.add(c);
@@ -474,67 +455,22 @@ public class Board extends GUI{
 		if(guessedCards.get(0) == murderCards.get(0) &&
 				guessedCards.get(1) == murderCards.get(1) &&
 				guessedCards.get(2) == murderCards.get(2)) {
-			System.out.println(player.getName()+"'s accusation was CORRECT and has won the game!\n");
+			out += (player.getName()+"'s accusation was CORRECT and has won the game!\n");
 			gameOver = true;
 		}
 		else {
-			System.out.println(player.getName()+"'s accusation was INCORRECT!\n"
+			out += (player.getName()+"'s accusation was INCORRECT!\n"
 					+player.getName()+" cannot make any more accusations!\n");
-
+			
 			player.setPlaying(false);
 		}
-
-	}
-
-	/**
-	 * helper method for doAccusation and doSuggestion
-	 * prompts user to choose a card from a list
-	 * returns chosen card
-	 * @param cards
-	 * @param type
-	 * @return Card
-	 */
-	private Card getGuess(List<Card> cards, String type) {
-		int count = 1;
-		System.out.println();
-		for(Card c: cards) {
-			System.out.println(count++ +"\t"+c.getName());
+		getTextOutputArea().setText(out);
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		int ans = 0;//inputNumber("Choose a "+type+" card: ");
-		while(ans < 1 || ans > cards.size()) ans = 0;//inputNumber("Choose a valid "+type+" card: ");
-
-		System.out.println();
-
-		return cards.get(ans-1);
-	}
-
-	/**
-	 * prints the key for the text-based user interface
-	 * the key indicates which char is used to represent which object
-	 * @param line
-	 */
-	public void printKey(int line) {
-		if(line == -1)System.out.print("\t\t\tKey:");
-		if(line == 0)System.out.print("\t\t\tS\t-\tMiss Scarlet");
-		if(line == 1)System.out.print("\t\t\tM\t-\tColonel Mustard");
-		if(line == 2)System.out.print("\t\t\tW\t-\tMrs. White");
-		if(line == 3)System.out.print("\t\tG\t-\tMr. Green");
-		if(line == 4)System.out.print("\t\t\tP\t-\tMrs. Peacock");
-		if(line == 5)System.out.print("\t\t\tL\t-\tProfessor Plum");
-
-		if(line == 7)System.out.print("\t\t\tc\t-\tCandlestick");
-		if(line == 8)System.out.print("\t\t\td\t-\tDagger");
-		if(line == 9)System.out.print("\t\t\tl\t-\tLead Pipe");
-		if(line == 10)System.out.print("\t\tv\t-\tRevolver");
-		if(line == 11)System.out.print("\t\tr\t-\tRope");
-		if(line == 12)System.out.print("\t\t\ts\t-\tSpanner");
-
-		if(line == 14)System.out.print("\t\t\t\u2588\t-\tInacessable Position");
-		if(line == 15)System.out.print("\t\t.\t-\tRoom");
-		if(line == 16)System.out.print("\t\t\t-\t-\tVertical Door Entrance");
-		if(line == 17)System.out.print("\t\t\t|\t-\tHorizontal Door Entrance");
-		if(line == 18)System.out.print("\t\t\to\t-\tPlayer has already moved to this position during turn");
-		if(line == 19)System.out.print("\t\t\tSpace\t-\tWalkway");
 	}
 
 	/**
@@ -701,8 +637,6 @@ public class Board extends GUI{
 			
 		} 
 
-		System.out.println();
-
 		//add a random card to a looping player, looping until all remaining cards are given out
 		int nextPlayer = (int)Math.random()*nplayers+1;
 		while(!cards.isEmpty()) {
@@ -733,7 +667,7 @@ public class Board extends GUI{
 			int count = 0;
 			for(Player pl: playing) if(!pl.getPlaying()) count++;
 			if(count == playing.size()) { 
-				System.out.println("Every Player has gotten their accusation wrong!\n"
+				getTextOutputArea().setText("Every Player has gotten their accusation wrong!\n"
 						+ "Game Over!");
 				return false;
 			}
