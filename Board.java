@@ -29,6 +29,7 @@ public class Board extends GUI{
 	private List<Card> allCards;
 	private List<Player> playing;
 	private Player playersTurn;
+	private static String inp;
 
 	//Variables
 	public enum dir{NORTH, EAST, SOUTH, WEST}
@@ -52,6 +53,7 @@ public class Board extends GUI{
 		this.weapons = weapons;
 		this.players = players;
 		this.playing = playing;
+		Board.inp = "";
 	}
 	
 	public List<Player> getPlayers(){
@@ -64,6 +66,14 @@ public class Board extends GUI{
 	
 	public List<Card> getMurderCards(){
 		return this.murderCards;
+	}
+	
+	public static void setInp(String inp) {
+		Board.inp = inp;
+	}
+	
+	public static String getInp() {
+		return Board.inp;
 	}
 
 	/**
@@ -84,46 +94,6 @@ public class Board extends GUI{
 			state += "\n";
 		}
 		return state;
-	}
-
-	/**
-	 * takes a message and displays it, awaiting user input as the answer of the String
-	 * user input must be an integer otherwise method asks again until an int is returned
-	 * @param msg
-	 * @return int
-	 */
-	private static int inputNumber(String msg) {
-		System.out.print(msg + " ");
-		while (true) {
-			BufferedReader input = new BufferedReader(new InputStreamReader(
-					System.in));
-			try {
-				String v = input.readLine();
-				return Integer.parseInt(v);
-			} catch (NumberFormatException | IOException e) { //Catches if invalid input
-				System.out.println("Please enter a number!");
-			}
-		}
-	}
-
-	/**
-	 * takes a message and displays it, awaiting user input as the answer of the String
-	 * user input must be a String otherwise method asks again until a String is returned
-	 * @param msg
-	 * @return String
-	 */
-	private static String inputString(String msg) {
-		System.out.print(msg + " ");
-		while (true) {
-			BufferedReader input = new BufferedReader(new InputStreamReader(
-					System.in)); 
-			try {
-				String v = input.readLine().toLowerCase();
-				return v;
-			} catch (NumberFormatException | IOException e) { //Catches if invalid input
-				System.out.println("Please enter a character!");
-			}
-		}
 	}
 
 	/**
@@ -278,108 +248,140 @@ public class Board extends GUI{
 	private void takeTurn(Player player) {
 		int moves = rollDice();
 		String tileName = "Walkway";
-		String outputMessage = "";
-		outputMessage += ("It's " + player.getName() + "'s turn!\n");
+		String endTurnMessage = "";
+		String outputMessage = ("It's "+player.getPlayer()+"'s turn! ("+player.getName()+")\n");
 		outputMessage += (player.getName() +" rolled a "+moves+"!");
+		getTextOutputArea().setText(outputMessage);
 
-		for(int i=moves; i>0; i--) {
-			boolean noMove = true;
-			boolean deadEnd = false;
-			while(noMove) {
-				int playerX = player.getPosition().getXPos();
-				int playerY = player.getPosition().getYPos();
-				
-				//Checks if player has moved into a dead end and ends their turn if they have
-				if(playerX+1 > 23 || !canMove(player.getPosition(), tiles[playerX+1][playerY])) {
-					if(playerX-1 < 0 || !canMove(player.getPosition(), tiles[playerX-1][playerY])) {
-						if(playerY+1 >24 || !canMove(player.getPosition(), tiles[playerX][playerY+1])) {
-							if(playerY-1 < 0 || !canMove(player.getPosition(), tiles[playerX][playerY-1])) {
-								i=0;
-								noMove=false;
-								deadEnd = true;
-								break;
+		for(int i=moves; i>0;) {
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+//			System.out.print("Inp = "+Board.inp);
+			if(!getInp().equals("")) { 
+				boolean noMove = true;
+				boolean deadEnd = false;
+				while(noMove) {
+					int playerX = player.getPosition().getXPos();
+					int playerY = player.getPosition().getYPos();
+					
+					//Checks if player has moved into a dead end and ends their turn if they have
+					if(playerX+1 > 23 || !canMove(player.getPosition(), tiles[playerX+1][playerY])) {
+						if(playerX-1 < 0 || !canMove(player.getPosition(), tiles[playerX-1][playerY])) {
+							if(playerY+1 >24 || !canMove(player.getPosition(), tiles[playerX][playerY+1])) {
+								if(playerY-1 < 0 || !canMove(player.getPosition(), tiles[playerX][playerY-1])) {
+									i=0;
+									noMove=false;
+									deadEnd = true;
+									break;
+								}
 							}
 						}
 					}
+	
+					if(inp.equalsIgnoreCase("w")) {
+						if(movePlayer(player, dir.NORTH)) {
+							noMove = false;
+							i--;
+						}
+					}
+					else if(inp.equalsIgnoreCase("a")) {
+						if(movePlayer(player, dir.WEST)) {
+							noMove = false;
+							i--;
+						}
+					}
+					else if(inp.equalsIgnoreCase("s")) {
+						if(movePlayer(player, dir.SOUTH)) {
+							noMove = false;
+							i--;
+						}
+					}
+					else if(inp.equalsIgnoreCase("d")) {
+						if(movePlayer(player, dir.EAST)) {
+							noMove = false;
+							i--;
+						}
+					}
+					else if(inp.equalsIgnoreCase("h")){
+						String hand = ("Your hand is: ");
+						for(Card card: player.getHand())
+							hand += ("\n\t"+card.getType()+": "+card.getName());
+						getTextOutputArea().setText(hand);
+					}
+					else if(!(player.getPosition().getName().equals("Walkway")) && inp.equalsIgnoreCase("end")){
+						i=0;
+						noMove = false;
+					}
+					setInp("");
+	
 				}
-
-				System.out.println(player.getName() + " has " + i + " moves left.");
-				String inp;
-
-				if(!player.getPosition().getName().equals("Walkway")) {
-					inp = inputString("Enter a direction (W/A/S/D/Hand/End): ");
+				if(deadEnd) {
+					System.out.print("You have moved into a dead end, you turn is over!\n");
 				}
 				else {
-					inp = inputString("Enter a direction (W/A/S/D/Hand): ");
+					redraw();
 				}
-
-				if(inp.equalsIgnoreCase("w")) {
-					if(movePlayer(player, dir.NORTH)) {
-						noMove = false;
+				tileName = player.getPosition().getName();
+				if(i>0) {
+					outputMessage = (player.getName() + " has " + (i) + " moves left.");
+					if(!player.getPosition().getName().equals("Walkway")){
+						outputMessage += ("\n"+player.getName()+" is in a room and may end their turn.");
 					}
+					getTextOutputArea().setText(outputMessage);
+				} else {
+					endTurnMessage = (player.getName()+" has run out of moves!");
 				}
-				else if(inp.equalsIgnoreCase("a")) {
-					if(movePlayer(player, dir.WEST)) {
-						noMove = false;
-					}
-				}
-				else if(inp.equalsIgnoreCase("s")) {
-					if(movePlayer(player, dir.SOUTH)) {
-						noMove = false;
-					}
-				}
-				else if(inp.equalsIgnoreCase("d")) {
-					if(movePlayer(player, dir.EAST)) {
-						noMove = false;
-					}
-				}
-				else if(inp.equalsIgnoreCase("hand")){
-					System.out.println("Your hand is: ");
-					for(Card card: player.getHand())
-						System.out.println("\t"+card.getType()+": "+card.getName());
-				}
-				else if(!player.getPosition().getName().equals("Walkway") && inp.equalsIgnoreCase("end")){
-					i=0;
-					noMove = false;
-
-				}	
-				else {
-					System.out.println("Enter W/A/S/D/Hand");
-				}
-
+				
 			}
-			if(deadEnd) {
-				System.out.print("You have moved into a dead end, you turn is over!\n");
-			}
-			else {
+			moveTiles.clear();		
+			getTextOutputArea().setText(outputMessage);
+			if(!gameOver) {
 				redraw();
 			}
-			tileName = player.getPosition().getName();
-			getTextOutputArea().setText(outputMessage);
 		}
-		moveTiles.clear();
-		String choice;
-		if(player.getPlaying())
-			choice = getEndTurnChoice(player, tileName);
-		else { 
-			System.out.println("Accusation has already been made.");
-			choice = "skip";
+		
+		setInp("");
+		
+		endTurnMessage += ("\n\t End Turn.\n\t Make an Accusation (usable once per game).");
+		if(!player.getPosition().getName().equals("Walkway"))
+			endTurnMessage += ("\n\t Make a Suggestion (using the "+player.getPosition().getName()+")");
+		getTextOutputArea().setText(endTurnMessage);
+		
+		for(int i=0; i<1;) {
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			System.out.println(inp+"\n");
+			if(inp.equalsIgnoreCase("c") || inp.equalsIgnoreCase("e")) i++;
+			else if(!player.getPosition().getName().equalsIgnoreCase("Walkway"))
+				if(inp.equalsIgnoreCase("g")) i++;
 		}
+		
+		getTextOutputArea().setText("isValid");
+		try {
+			Thread.sleep(20000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(!player.getPlaying())
+			setInp("e");
 
-		if(choice.equals("accu")) {
+		if(inp.equals("c")) 
 			if(player.isPlaying()) doAccusation(player);
-			else System.out.println(player.getName()+" has already make their accusation!\n"
-					+ "Only one accusation may be made per game.");
-		}
-		if(choice.equals("suggest")) { 
+		else if(inp.equals("g")) 
 			doSuggestion(player, tileName);	
-		}
-		if(!gameOver) {
-			redraw();
-		}
-
 	}
 
+	public void setMove(String m) {
+		this.inp = m;
+	}
 
 	/**
 	 * helper method called at end of takeTurn(Player p)
@@ -390,26 +392,26 @@ public class Board extends GUI{
 	 * @param tileName
 	 * @return String
 	 */
-	public String getEndTurnChoice(Player player, String tileName) {
-		int ans = 0;
-		System.out.print("Would you like to...\n");
-		if(tileName.equals("Walkway")) {
-			while(ans != 1 && ans != 2) 
-				ans = inputNumber("1. Make an accusation. (1 per game)\n"
-						+ "2. End turn.\n" + "Enter choice (1/2): ");
-			if(ans == 1) return "accu";
-		}
-		else {
-			while(ans != 1 && ans != 2 && ans != 3)
-				ans = inputNumber("1. Make a suggestion. (Using room '" +tileName+"')\n"
-						+ "2. Make an accusation. (1 per game)\n"
-						+ "3. End turn\n" + "Enter choice (1/2/3): ");
-			if(ans == 1) return "suggest";
-			if(ans == 2) return "accu";
-
-		} 
-		return "end";
-	}
+//	public String getEndTurnChoice(Player player, String tileName) {
+//		int ans = 0;
+//		System.out.print("Would you like to...\n");
+//		if(tileName.equals("Walkway")) {
+//			while(ans != 1 && ans != 2) 
+//				ans = inputNumber("1. Make an accusation. (1 per game)\n"
+//						+ "2. End turn.\n" + "Enter choice (1/2): ");
+//			if(ans == 1) return "accu";
+//		}
+//		else {
+//			while(ans != 1 && ans != 2 && ans != 3)
+//				ans = inputNumber("1. Make a suggestion. (Using room '" +tileName+"')\n"
+//						+ "2. Make an accusation. (1 per game)\n"
+//						+ "3. End turn\n" + "Enter choice (1/2/3): ");
+//			if(ans == 1) return "suggest";
+//			if(ans == 2) return "accu";
+//
+//		} 
+//		return "end";
+//	}
 
 	/**
 	 * prompts player to choose cards to suggest
@@ -469,8 +471,8 @@ public class Board extends GUI{
 			if(count > 1) {
 				System.out.println(p.getName()+" Which card would you like to show?\n");
 				for(int i=0;i<count;i++) System.out.println(i+1+": "+cardList.get(i).getName());
-				int inp = (inputNumber("You may only show one: "));
-				while(inp<1 || inp>count) inp = inputNumber("Please select a valid number.");
+				int inp = 0;//(inputNumber("You may only show one: "));
+				while(inp<1 || inp>count) inp = 0;//inputNumber("Please select a valid number.");
 				System.out.println("Player "+p.getName()+" has the "+(cardList.get(inp-1).getName())+" card!");
 				for(int i=0;i<count;i++) {
 					if(i != inp-1) System.out.println("The "+(cardList.get(i).getName())+"card was not found!");
@@ -537,8 +539,8 @@ public class Board extends GUI{
 		for(Card c: cards) {
 			System.out.println(count++ +"\t"+c.getName());
 		}
-		int ans = inputNumber("Choose a "+type+" card: ");
-		while(ans < 1 || ans > cards.size()) ans = inputNumber("Choose a valid "+type+" card: ");
+		int ans = 0;//inputNumber("Choose a "+type+" card: ");
+		while(ans < 1 || ans > cards.size()) ans = 0;//inputNumber("Choose a valid "+type+" card: ");
 
 		System.out.println();
 
@@ -964,7 +966,6 @@ public class Board extends GUI{
 			}
 		}
 		*/
-		getTextOutputArea().setText("Test Message!");
 		
 		int width = getDrawingAreaDimension().width;
 		int height = getDrawingAreaDimension().height-20;
@@ -997,10 +998,6 @@ public class Board extends GUI{
 					g.setFont(new Font("TimesRoman", Font.PLAIN, (int)(offset*0.6)));
 					g.drawString(tiles[x][y].player.getPiece()+"", x*offset+centre+(offset/4)+1,y*offset+(offset/1)-3);
 				}
-				
-				
-				
-				
 
 			}
 		}
@@ -1016,9 +1013,6 @@ public class Board extends GUI{
 					if(y+1 < 25 && !(tiles[x][y].getName().equals(tiles[x][y+1].getName()))) {
 						g.drawLine(x*offset+centre, y*offset+offset, x*offset+centre+offset, y*offset+offset);
 					}
-					
-				
-				
 			}
 		}
 		
@@ -1052,26 +1046,6 @@ public class Board extends GUI{
 	@Override
 	protected void getInput() {
 		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void onMove(Move m) {
-		// TODO Auto-generated method stub
-		switch(m) {
-			case EAST:
-				getTextOutputArea().setText("East");
-				break;
-			case WEST:
-				getTextOutputArea().setText("West");
-				break;
-			case NORTH:
-				getTextOutputArea().setText("North");
-				break;
-			case SOUTH:
-				getTextOutputArea().setText("South");
-				break;
-		}
 		
 	}
 	
