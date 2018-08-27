@@ -134,6 +134,57 @@ public abstract class GUI {
 		}
 		return -1; //Dead code
 	}
+	
+	public static int character(String text) {
+		Object[] choice = {"Miss Scarlett", "Colonel Mustard", "Mrs. White", "Mr. Green", "Mrs. Peacock", "Professor Plum"};
+		String s = (String)JOptionPane.showInputDialog(frame, text+"Which character would you like to choose?", "...", JOptionPane.PLAIN_MESSAGE, null, choice, "3");
+		if((s != null) && (s.length() > 0)) {
+			switch(s) {
+			case "Miss Scarlett": return 0;
+			case "Colonel Mustard": return 1;
+			case "Mrs. White": return 2;
+			case "Mr. Green": return 3;
+			case "Mrs. Peacock": return 4;
+			case "Professor Plum": return 5;
+			}
+		}
+		return -1; //Dead code
+	}
+	public static int weapon(String text) {
+		Object[] choice = {"Candlestick", "Dagger", "Lead Pipe", "Revolver", "Rope", "Spanner"};
+		String s = (String)JOptionPane.showInputDialog(frame, text+"Which weapon would you like to choose?", "...", JOptionPane.PLAIN_MESSAGE, null, choice, "3");
+		if((s != null) && (s.length() > 0)) {
+			switch(s) {
+			case "Candlestick": return 0;
+			case "Dagger": return 1;
+			case "Lead Pipe": return 2;
+			case "Revolver": return 3;
+			case "Rope": return 4;
+			case "Spanner": return 5;
+			}
+		}
+		return -1; //Dead code
+	}
+	
+	public static int room(String text) {
+		Object[] choice = {"Kitchen", "Ball Room", "Conservatory", "Billiard Room", "Library", "Study", "Dining Room", "Hall", "Lounge"};
+		String s = (String)JOptionPane.showInputDialog(frame, text+"Which weapon would you like to choose?", "...", JOptionPane.PLAIN_MESSAGE, null, choice, "3");
+		if((s != null) && (s.length() > 0)) {
+			switch(s) {
+			case "Kitchen": return 0;
+			case "Ball Room": return 1;
+			case "Conservatory": return 2;
+			case "Billiard Room": return 3;
+			case "Library": return 4;
+			case "Study": return 5;
+			case "Dining Room": return 6;
+			case "Hall": return 7;
+			case "Lounge": return 8;
+			}
+		}
+		return -1; //Dead code
+	}
+
 
 	
 
